@@ -6,6 +6,7 @@ var socketIo = require("socket.io");
 //import {schema} from'./model';
 var schema_1 = require("./model/schema");
 var ChatServer = /** @class */ (function () {
+    //private api = require('./server/routes/api');
     //private chat =require('./model/schema');
     function ChatServer() {
         this.createApp();
@@ -36,12 +37,30 @@ var ChatServer = /** @class */ (function () {
     };
     ChatServer.prototype.createApp = function () {
         this.app = express();
+        this.api = require('../routes/api');
+        this.busboy = require('connect-busboy');
     };
     ChatServer.prototype.createServer = function () {
         this.server = http_1.createServer(this.app);
     };
     ChatServer.prototype.config = function () {
         this.port = process.env.PORT || ChatServer.PORT;
+        this.app.set('port', this.port);
+        this.app.use(this.busboy({ immediate: true }));
+        this.app.use(function (req, res, next) {
+            // Website you wish to allow to connect
+            res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+            // Request methods you wish to allow
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+            // Request headers you wish to allow
+            res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+            // Set to true if you need the website to include cookies in the requests sent
+            // to the API (e.g. in case you use sessions)
+            //res.setHeader('Access-Control-Allow-Credentials', 'false');
+            // Pass to next layer of middleware
+            next();
+        });
+        this.app.use('/api', this.api);
     };
     ChatServer.prototype.sockets = function () {
         this.io = socketIo(this.server);
@@ -159,7 +178,7 @@ var ChatServer = /** @class */ (function () {
                     if (err)
                         throw err;
                 });
-                console.log("saved message:", data);
+                //console.log("saved message:",data);
                 if (data.toid != '') {
                     for (var i = 0; i < data.toid.length; i++) {
                         socket.broadcast.to(data.toid[i]).emit('sendDrawImg', {
@@ -190,6 +209,50 @@ var ChatServer = /** @class */ (function () {
                     //msg:data.msg,
                     senderName: data.senderName,
                     drawImg: data.drawImg,
+                    receiverName: data.receiverName,
+                    fromid: data.fromid,
+                    toid: data.toid,
+                    createAt: data.createAt
+                });
+            });
+            socket.on('getFile', function (data) {
+                var newMsg = new schema_1.chatSchema(data);
+                //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
+                newMsg.save(function (err) {
+                    if (err)
+                        throw err;
+                });
+                //console.log("saved message:",data);
+                if (data.toid != '') {
+                    for (var i = 0; i < data.toid.length; i++) {
+                        socket.broadcast.to(data.toid[i]).emit('sendFile', {
+                            //msg:data.msg,
+                            senderName: data.senderName,
+                            file: data.file,
+                            receiverName: data.receiverName,
+                            fromid: data.fromid,
+                            toid: data.toid,
+                            createAt: data.createAt
+                        });
+                    }
+                }
+                if (data.selfsockets != '') {
+                    for (var i = 0; i < data.selfsockets.length; i++) {
+                        socket.broadcast.to(data.selfsockets[i]).emit('sendFile', {
+                            //msg:data.msg,
+                            senderName: data.senderName,
+                            file: data.file,
+                            receiverName: data.receiverName,
+                            fromid: data.fromid,
+                            toid: data.toid,
+                            createAt: data.createAt
+                        });
+                    }
+                }
+                socket.emit('sendFile', {
+                    //msg:data.msg,
+                    senderName: data.senderName,
+                    file: data.file,
                     receiverName: data.receiverName,
                     fromid: data.fromid,
                     toid: data.toid,

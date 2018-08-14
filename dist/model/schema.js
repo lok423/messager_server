@@ -19,6 +19,10 @@ var schema = new exports.Schema({
         type: String,
         required: false
     },
+    file: {
+        type: String,
+        required: false
+    },
     createdAt: {
         type: Date,
         required: false
