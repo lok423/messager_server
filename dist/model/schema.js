@@ -23,6 +23,10 @@ var schema = new exports.Schema({
         type: String,
         required: false
     },
+    filename: {
+        type: String,
+        required: false
+    },
     createdAt: {
         type: Date,
         required: false

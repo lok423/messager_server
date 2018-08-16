@@ -16,7 +16,8 @@ export class ChatServer {
 		private users:any[];
     private mongoose;
     private api;
-    private busboy;
+    //private busboy;
+    private formidable;
     //private api = require('./server/routes/api');
 
 
@@ -53,7 +54,8 @@ if (err) {
     private createApp(): void {
         this.app = express();
         this.api =require('../routes/api');
-        this.busboy = require('connect-busboy');
+        //this.busboy = require('connect-busboy');
+        this.formidable = require('formidable');
     }
 
     private createServer(): void {
@@ -62,13 +64,14 @@ if (err) {
 
     private config(): void {
         this.port = process.env.PORT || ChatServer.PORT;
-        this.app.set('port', this.port);
-        this.app.use(this.busboy({ immediate: true }));
+        this.app.set('port', this.port );
+        //this.app.use(this.busboy({ immediate: true }));
+        //this.app.use(this.formidable);
 
         this.app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -265,6 +268,7 @@ console.log("found same user, which id",sameUserIds);
 
         socket.on('getFile', (data:any) => {
           var newMsg = new chatSchema(data);
+          console.log(newMsg);
           //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
           newMsg.save(function(err){
           if(err) throw err;
@@ -277,6 +281,7 @@ console.log("found same user, which id",sameUserIds);
               //msg:data.msg,
               senderName:data.senderName,
               file:data.file,
+              filename:data.filename,
               receiverName: data.receiverName,
               fromid:data.fromid,
               toid:data.toid,
@@ -290,6 +295,7 @@ console.log("found same user, which id",sameUserIds);
               //msg:data.msg,
               senderName:data.senderName,
               file:data.file,
+              filename:data.filename,
               receiverName: data.receiverName,
               fromid:data.fromid,
               toid:data.toid,
@@ -304,6 +310,7 @@ console.log("found same user, which id",sameUserIds);
             //msg:data.msg,
             senderName:data.senderName,
             file:data.file,
+            filename:data.filename,
             receiverName: data.receiverName,
             fromid:data.fromid,
             toid:data.toid,

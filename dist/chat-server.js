@@ -38,7 +38,8 @@ var ChatServer = /** @class */ (function () {
     ChatServer.prototype.createApp = function () {
         this.app = express();
         this.api = require('../routes/api');
-        this.busboy = require('connect-busboy');
+        //this.busboy = require('connect-busboy');
+        this.formidable = require('formidable');
     };
     ChatServer.prototype.createServer = function () {
         this.server = http_1.createServer(this.app);
@@ -46,10 +47,11 @@ var ChatServer = /** @class */ (function () {
     ChatServer.prototype.config = function () {
         this.port = process.env.PORT || ChatServer.PORT;
         this.app.set('port', this.port);
-        this.app.use(this.busboy({ immediate: true }));
+        //this.app.use(this.busboy({ immediate: true }));
+        //this.app.use(this.formidable);
         this.app.use(function (req, res, next) {
             // Website you wish to allow to connect
-            res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+            res.setHeader('Access-Control-Allow-Origin', '*');
             // Request methods you wish to allow
             res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
             // Request headers you wish to allow
@@ -217,6 +219,7 @@ var ChatServer = /** @class */ (function () {
             });
             socket.on('getFile', function (data) {
                 var newMsg = new schema_1.chatSchema(data);
+                console.log(newMsg);
                 //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
                 newMsg.save(function (err) {
                     if (err)
@@ -229,6 +232,7 @@ var ChatServer = /** @class */ (function () {
                             //msg:data.msg,
                             senderName: data.senderName,
                             file: data.file,
+                            filename: data.filename,
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             toid: data.toid,
@@ -242,6 +246,7 @@ var ChatServer = /** @class */ (function () {
                             //msg:data.msg,
                             senderName: data.senderName,
                             file: data.file,
+                            filename: data.filename,
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             toid: data.toid,
@@ -253,6 +258,7 @@ var ChatServer = /** @class */ (function () {
                     //msg:data.msg,
                     senderName: data.senderName,
                     file: data.file,
+                    filename: data.filename,
                     receiverName: data.receiverName,
                     fromid: data.fromid,
                     toid: data.toid,

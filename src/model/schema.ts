@@ -27,6 +27,11 @@ let schema = new Schema({
     required: false
   },
 
+  filename:{
+    type: String,
+    required: false
+  },
+
   createdAt: {
 	   type: Date,
 	   required: false
