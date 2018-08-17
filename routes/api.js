@@ -5,7 +5,11 @@ var fs        = require('fs');
 var _filename='';
 var formidable = require('formidable');
 var path = require('path');
+const aws = require('aws-sdk');
 
+const BUCKET_NAME = '';
+const IAM_USER_KEY = '';
+const IAM_USER_SECRET = '';
 
 /*
 router.post('/upload-file', function(req, res, next) {
@@ -48,6 +52,8 @@ router.post('/upload-file', function(req, res){
 
   // specify that we want to allow the user to upload multiple files in a single request
   form.multiples = true;
+  console.log("1");
+  console.log(__dirname);
 
   // store all uploads in the /uploads directory
   form.uploadDir = path.join(__dirname, '/../public/my-files/');
@@ -55,6 +61,7 @@ router.post('/upload-file', function(req, res){
   // every time a file has been uploaded successfully,
   // rename it to it's orignal name
   form.on('file', function(field, file) {
+    console.log("file_path", file.path);
     fs.rename(file.path, path.join(form.uploadDir, file.name));
     _filename = file.name;
   });
@@ -68,6 +75,11 @@ router.post('/upload-file', function(req, res){
   form.on('end', function() {
     //res.end({ success : true, file_path:  __dirname + '/../public/my-files/' + _filename, file_name: _filename});
     res.json({ success : true, file_path:  __dirname + '/../public/my-files/' + _filename, file_name: _filename});
+
+
+
+
+
   });
 
   // parse the incoming request containing the form data
