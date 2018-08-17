@@ -52,8 +52,8 @@ router.post('/upload-file', function(req, res){
 
   // specify that we want to allow the user to upload multiple files in a single request
   form.multiples = true;
-  console.log("1");
-  console.log(__dirname);
+  //console.log("1");
+  //console.log(__dirname);
 
   // store all uploads in the /uploads directory
   //form.uploadDir = path.join(__dirname, '/../public/my-files/');
@@ -61,7 +61,9 @@ router.post('/upload-file', function(req, res){
   // every time a file has been uploaded successfully,
   // rename it to it's orignal name
   form.on('file', function(field, file) {
+
     console.log("file_path", file.path);
+    console.log(file);
     //fs.rename(file.path, path.join(form.uploadDir, file.name));
     _filename = file.name;
   });
