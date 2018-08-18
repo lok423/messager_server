@@ -195,7 +195,7 @@ console.log("found same user, which id",sameUserIds);
         })
 
           console.log("saved message:",data);
-          if(data.toid!=''){
+          if(data.toid){
           for(let i=0; i<data.toid.length;i++){
             socket.broadcast.to(data.toid[i]).emit('sendMsg',{
   		    		msg:data.msg,
@@ -263,7 +263,7 @@ console.log("found same user, which id",sameUserIds);
         })
 
           //console.log("saved message:",data);
-          if(data.toid!=''){
+          if(data.toid){
           for(let i=0; i<data.toid.length;i++){
             socket.broadcast.to(data.toid[i]).emit('sendDrawImg',{
               //msg:data.msg,
@@ -276,7 +276,7 @@ console.log("found same user, which id",sameUserIds);
             });
           }
 
-        if(data.selfsockets!=''){
+        if(data.selfsockets){
           for(let i=0; i<data.selfsockets.length;i++){
             socket.broadcast.to(data.selfsockets[i]).emit('sendDrawImg',{
               //msg:data.msg,
@@ -312,7 +312,7 @@ console.log("found same user, which id",sameUserIds);
         })
 
           //console.log("saved message:",data);
-          if(data.toid!=''){
+          if(data.toid){
           for(let i=0; i<data.toid.length;i++){
             socket.broadcast.to(data.toid[i]).emit('sendFile',{
               //msg:data.msg,
