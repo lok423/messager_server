@@ -1,6 +1,8 @@
+require('rootpath')();
 import { createServer, Server } from 'http';
 import * as express from 'express';
 import * as socketIo from 'socket.io';
+
 //import * as mongoose from 'mongoose';
 import { Message } from './model';
 //import {schema} from'./model';
@@ -18,6 +20,12 @@ export class ChatServer {
     private api;
     //private busboy;
     private formidable;
+    private cors = require('cors');
+    private bodyParser = require('body-parser');
+    private expressJwt = require('express-jwt');
+    private authconfig = require('config.json');
+
+
     //private api = require('./server/routes/api');
 
 
@@ -67,6 +75,9 @@ if (err) {
         this.app.set('port', this.port );
         //this.app.use(this.busboy({ immediate: true }));
         //this.app.use(this.formidable);
+        this.app.use(this.cors());
+        this.app.use(this.bodyParser.urlencoded({ extended: false }));
+        this.app.use(this.bodyParser.json());
 
         this.app.use(function (req, res, next) {
 
@@ -88,6 +99,29 @@ if (err) {
 
 });
 this.app.use('/api', this.api);
+this.app.use(this.expressJwt({
+    secret: this.authconfig.secret,
+    getToken: function (req) {
+        if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+            return req.headers.authorization.split(' ')[1];
+        } else if (req.query && req.query.token) {
+            return req.query.token;
+        }
+        return null;
+    }
+}).unless({ path: ['/users/authenticate', '/users/register'] }));
+
+// routes
+this.app.use('/users', require('../controllers/users.controller'));
+
+// error handler
+this.app.use(function (err, req, res, next) {
+    if (err.name === 'UnauthorizedError') {
+        res.status(401).send('Invalid Token');
+    } else {
+        throw err;
+    }
+});
 
 
     }
@@ -108,9 +142,10 @@ this.app.use('/api', this.api);
             console.log('Connected client on port %s.', this.port);
 
 
-            socket.on('username', (userName:string) => {
-              var query = chatSchema.find({ $or: [ { senderName: userName}, { receiverName: userName } ] });
-              query.sort('+createdAt').limit().exec(function (err,allMessages) {
+            socket.on('user', (user:any) => {
+              console.log("on user",user);
+              var query = chatSchema.find({ $or: [ { senderName: user.username}, { receiverName: user.username } ] });
+              query.sort('+createdAt').exec(function (err,allMessages) {
                   if(err) throw err;
                   else{
                     console.log("allMessages",allMessages);
@@ -119,17 +154,17 @@ this.app.use('/api', this.api);
               });
 
               console.log("socketid: ",socket.id);
-              console.log('User Joined: %s', JSON.stringify(userName));
+              console.log('User Joined: %s', JSON.stringify(user.username));
               var sameUserIds:string[]=[];
-              var found = this.users.some(function(user) {
+              var found = this.users.some(function(finduser) {
                 console.log("for each user",user);
 
-  if (user.userName === userName) {
-    console.log("find same user", user.channelid);
+  if (finduser.username === user.username) {
+    console.log("find same user", finduser.channelid);
     //user.channelids.push(socket.id);
     //sameUserIds.push(user.channelid);
-    user.channelid.push(socket.id);
-    return user.channelid;
+    finduser.channelid.push(socket.id);
+    return finduser.channelid;
   }
 });
 console.log("found same user, which id",sameUserIds);
@@ -141,7 +176,7 @@ console.log("found same user, which id",sameUserIds);
               }else{
                 this.users.push({
     		      		channelid : [socket.id],
-    		      		userName : userName,
+    		      		username : user.username,
     		      	});
                 console.log(this.users);
               }
