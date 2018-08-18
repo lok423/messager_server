@@ -219,17 +219,16 @@ console.log("found same user, which id",sameUserIds);
   		    	});
           }
         }
-
+}
 
           socket.emit('sendMsg',{
 		    		msg:data.msg,
             senderName:data.senderName,
             receiverName: data.receiverName,
             fromid:data.fromid,
-            toid:data.toid,
             createAt:data.createAt
 		    	});
-        }
+
 
 		    });
 
@@ -289,16 +288,16 @@ console.log("found same user, which id",sameUserIds);
             });
           }
         }
+        }
           socket.emit('sendDrawImg',{
             //msg:data.msg,
             senderName:data.senderName,
             drawImg:data.drawImg,
             receiverName: data.receiverName,
             fromid:data.fromid,
-            toid:data.toid,
             createAt:data.createAt
           });
-        }
+
         });
 
 
@@ -341,7 +340,7 @@ console.log("found same user, which id",sameUserIds);
           }
         }
 
-
+}
 
           socket.emit('sendFile',{
             //msg:data.msg,
@@ -350,10 +349,9 @@ console.log("found same user, which id",sameUserIds);
             filename:data.filename,
             receiverName: data.receiverName,
             fromid:data.fromid,
-            toid:data.toid,
             createAt:data.createAt
           });
-        }
+
 
         });
 
