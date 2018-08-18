@@ -108,7 +108,7 @@ var ChatServer = /** @class */ (function () {
             socket.on('user', function (user) {
                 console.log("on user", user);
                 var query = schema_1.chatSchema.find({ $or: [{ senderName: user.username }, { receiverName: user.username }] });
-                query.sort({ createdAt: -1 }).exec(function (err, allMessages) {
+                query.sort({ createdAt: 1 }).exec(function (err, allMessages) {
                     if (err)
                         throw err;
                     else {
