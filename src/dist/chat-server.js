@@ -108,7 +108,7 @@ var ChatServer = /** @class */ (function () {
             socket.on('user', function (user) {
                 console.log("on user", user);
                 var query = schema_1.chatSchema.find({ $or: [{ senderName: user.username }, { receiverName: user.username }] });
-                query.sort('+createdAt').exec(function (err, allMessages) {
+                query.sort('-createdAt').exec(function (err, allMessages) {
                     if (err)
                         throw err;
                     else {
@@ -154,7 +154,7 @@ var ChatServer = /** @class */ (function () {
                         throw err;
                 });
                 console.log("saved message:", data);
-                if (data.toid != '') {
+                if (data.toid) {
                     for (var i = 0; i < data.toid.length; i++) {
                         socket.broadcast.to(data.toid[i]).emit('sendMsg', {
                             msg: data.msg,
@@ -165,27 +165,27 @@ var ChatServer = /** @class */ (function () {
                             createAt: data.createAt
                         });
                     }
-                }
-                if (data.selfsockets != '') {
-                    for (var i = 0; i < data.selfsockets.length; i++) {
-                        socket.broadcast.to(data.selfsockets[i]).emit('sendMsg', {
-                            msg: data.msg,
-                            senderName: data.senderName,
-                            receiverName: data.receiverName,
-                            fromid: data.fromid,
-                            toid: data.toid,
-                            createAt: data.createAt
-                        });
+                    if (data.selfsockets != '') {
+                        for (var i = 0; i < data.selfsockets.length; i++) {
+                            socket.broadcast.to(data.selfsockets[i]).emit('sendMsg', {
+                                msg: data.msg,
+                                senderName: data.senderName,
+                                receiverName: data.receiverName,
+                                fromid: data.fromid,
+                                toid: data.toid,
+                                createAt: data.createAt
+                            });
+                        }
                     }
+                    socket.emit('sendMsg', {
+                        msg: data.msg,
+                        senderName: data.senderName,
+                        receiverName: data.receiverName,
+                        fromid: data.fromid,
+                        toid: data.toid,
+                        createAt: data.createAt
+                    });
                 }
-                socket.emit('sendMsg', {
-                    msg: data.msg,
-                    senderName: data.senderName,
-                    receiverName: data.receiverName,
-                    fromid: data.fromid,
-                    toid: data.toid,
-                    createAt: data.createAt
-                });
             });
             socket.on('disconnect', function () {
                 for (var i = 0; i < _this.users.length; i++) {
@@ -213,7 +213,7 @@ var ChatServer = /** @class */ (function () {
                         throw err;
                 });
                 //console.log("saved message:",data);
-                if (data.toid != '') {
+                if (data.toid) {
                     for (var i = 0; i < data.toid.length; i++) {
                         socket.broadcast.to(data.toid[i]).emit('sendDrawImg', {
                             //msg:data.msg,
@@ -225,29 +225,29 @@ var ChatServer = /** @class */ (function () {
                             createAt: data.createAt
                         });
                     }
-                }
-                if (data.selfsockets != '') {
-                    for (var i = 0; i < data.selfsockets.length; i++) {
-                        socket.broadcast.to(data.selfsockets[i]).emit('sendDrawImg', {
-                            //msg:data.msg,
-                            senderName: data.senderName,
-                            drawImg: data.drawImg,
-                            receiverName: data.receiverName,
-                            fromid: data.fromid,
-                            toid: data.toid,
-                            createAt: data.createAt
-                        });
+                    if (data.selfsockets) {
+                        for (var i = 0; i < data.selfsockets.length; i++) {
+                            socket.broadcast.to(data.selfsockets[i]).emit('sendDrawImg', {
+                                //msg:data.msg,
+                                senderName: data.senderName,
+                                drawImg: data.drawImg,
+                                receiverName: data.receiverName,
+                                fromid: data.fromid,
+                                toid: data.toid,
+                                createAt: data.createAt
+                            });
+                        }
                     }
+                    socket.emit('sendDrawImg', {
+                        //msg:data.msg,
+                        senderName: data.senderName,
+                        drawImg: data.drawImg,
+                        receiverName: data.receiverName,
+                        fromid: data.fromid,
+                        toid: data.toid,
+                        createAt: data.createAt
+                    });
                 }
-                socket.emit('sendDrawImg', {
-                    //msg:data.msg,
-                    senderName: data.senderName,
-                    drawImg: data.drawImg,
-                    receiverName: data.receiverName,
-                    fromid: data.fromid,
-                    toid: data.toid,
-                    createAt: data.createAt
-                });
             });
             socket.on('getFile', function (data) {
                 var newMsg = new schema_1.chatSchema(data);
@@ -258,7 +258,7 @@ var ChatServer = /** @class */ (function () {
                         throw err;
                 });
                 //console.log("saved message:",data);
-                if (data.toid != '') {
+                if (data.toid) {
                     for (var i = 0; i < data.toid.length; i++) {
                         socket.broadcast.to(data.toid[i]).emit('sendFile', {
                             //msg:data.msg,
@@ -271,31 +271,31 @@ var ChatServer = /** @class */ (function () {
                             createAt: data.createAt
                         });
                     }
-                }
-                if (data.selfsockets != '') {
-                    for (var i = 0; i < data.selfsockets.length; i++) {
-                        socket.broadcast.to(data.selfsockets[i]).emit('sendFile', {
-                            //msg:data.msg,
-                            senderName: data.senderName,
-                            file: data.file,
-                            filename: data.filename,
-                            receiverName: data.receiverName,
-                            fromid: data.fromid,
-                            toid: data.toid,
-                            createAt: data.createAt
-                        });
+                    if (data.selfsockets != '') {
+                        for (var i = 0; i < data.selfsockets.length; i++) {
+                            socket.broadcast.to(data.selfsockets[i]).emit('sendFile', {
+                                //msg:data.msg,
+                                senderName: data.senderName,
+                                file: data.file,
+                                filename: data.filename,
+                                receiverName: data.receiverName,
+                                fromid: data.fromid,
+                                toid: data.toid,
+                                createAt: data.createAt
+                            });
+                        }
                     }
+                    socket.emit('sendFile', {
+                        //msg:data.msg,
+                        senderName: data.senderName,
+                        file: data.file,
+                        filename: data.filename,
+                        receiverName: data.receiverName,
+                        fromid: data.fromid,
+                        toid: data.toid,
+                        createAt: data.createAt
+                    });
                 }
-                socket.emit('sendFile', {
-                    //msg:data.msg,
-                    senderName: data.senderName,
-                    file: data.file,
-                    filename: data.filename,
-                    receiverName: data.receiverName,
-                    fromid: data.fromid,
-                    toid: data.toid,
-                    createAt: data.createAt
-                });
             });
         });
     };
