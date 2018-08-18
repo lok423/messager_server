@@ -206,7 +206,7 @@ console.log("found same user, which id",sameUserIds);
               createAt:data.createAt
   		    	});
           }
-        }
+        
         if(data.selfsockets!=''){
           for(let i=0; i<data.selfsockets.length;i++){
             socket.broadcast.to(data.selfsockets[i]).emit('sendMsg',{
@@ -221,7 +221,6 @@ console.log("found same user, which id",sameUserIds);
         }
 
 
-if(data.toid!=''){
           socket.emit('sendMsg',{
 		    		msg:data.msg,
             senderName:data.senderName,
@@ -276,7 +275,7 @@ if(data.toid!=''){
               createAt:data.createAt
             });
           }
-        }
+
         if(data.selfsockets!=''){
           for(let i=0; i<data.selfsockets.length;i++){
             socket.broadcast.to(data.selfsockets[i]).emit('sendDrawImg',{
@@ -290,7 +289,6 @@ if(data.toid!=''){
             });
           }
         }
-        if(data.toid!=''){
           socket.emit('sendDrawImg',{
             //msg:data.msg,
             senderName:data.senderName,
@@ -327,7 +325,7 @@ if(data.toid!=''){
               createAt:data.createAt
             });
           }
-        }
+
         if(data.selfsockets!=''){
           for(let i=0; i<data.selfsockets.length;i++){
             socket.broadcast.to(data.selfsockets[i]).emit('sendFile',{
@@ -344,7 +342,7 @@ if(data.toid!=''){
         }
 
 
-if(data.toid!=''){
+
           socket.emit('sendFile',{
             //msg:data.msg,
             senderName:data.senderName,
