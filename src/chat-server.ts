@@ -221,7 +221,7 @@ console.log("found same user, which id",sameUserIds);
         }
 
 
-
+if(data.toid!=''){
           socket.emit('sendMsg',{
 		    		msg:data.msg,
             senderName:data.senderName,
@@ -230,8 +230,10 @@ console.log("found same user, which id",sameUserIds);
             toid:data.toid,
             createAt:data.createAt
 		    	});
+        }
 
 		    });
+
 
 		    socket.on('disconnect',()=>{
 
@@ -288,6 +290,7 @@ console.log("found same user, which id",sameUserIds);
             });
           }
         }
+        if(data.toid!=''){
           socket.emit('sendDrawImg',{
             //msg:data.msg,
             senderName:data.senderName,
@@ -297,6 +300,7 @@ console.log("found same user, which id",sameUserIds);
             toid:data.toid,
             createAt:data.createAt
           });
+        }
         });
 
 
@@ -340,7 +344,7 @@ console.log("found same user, which id",sameUserIds);
         }
 
 
-
+if(data.toid!=''){
           socket.emit('sendFile',{
             //msg:data.msg,
             senderName:data.senderName,
@@ -351,6 +355,7 @@ console.log("found same user, which id",sameUserIds);
             toid:data.toid,
             createAt:data.createAt
           });
+        }
 
         });
 
