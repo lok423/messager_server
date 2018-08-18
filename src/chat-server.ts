@@ -145,7 +145,7 @@ this.app.use(function (err, req, res, next) {
             socket.on('user', (user:any) => {
               console.log("on user",user);
               var query = chatSchema.find({ $or: [ { senderName: user.username}, { receiverName: user.username } ] });
-              query.sort('+createdAt').exec(function (err,allMessages) {
+              query.sort({createdAt: -1}).exec(function (err,allMessages) {
                   if(err) throw err;
                   else{
                     console.log("allMessages",allMessages);
