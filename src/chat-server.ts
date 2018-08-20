@@ -206,6 +206,7 @@ console.log("found same user, which id",sameUserIds);
               createAt:data.createAt
   		    	});
           }
+          }
 
         if(data.selfsockets!=''){
           for(let i=0; i<data.selfsockets.length;i++){
@@ -214,12 +215,12 @@ console.log("found same user, which id",sameUserIds);
   		    		senderName:data.senderName,
               receiverName: data.receiverName,
               fromid:data.fromid,
-              toid:data.toid,
+              //toid:data.toid,
               createAt:data.createAt
   		    	});
           }
         }
-}
+
 
           socket.emit('sendMsg',{
 		    		msg:data.msg,
@@ -274,7 +275,7 @@ console.log("found same user, which id",sameUserIds);
               createAt:data.createAt
             });
           }
-
+}
         if(data.selfsockets){
           for(let i=0; i<data.selfsockets.length;i++){
             socket.broadcast.to(data.selfsockets[i]).emit('sendDrawImg',{
@@ -283,12 +284,12 @@ console.log("found same user, which id",sameUserIds);
               drawImg:data.drawImg,
               receiverName: data.receiverName,
               fromid:data.fromid,
-              toid:data.toid,
+              //toid:data.toid,
               createAt:data.createAt
             });
           }
         }
-        }
+
           socket.emit('sendDrawImg',{
             //msg:data.msg,
             senderName:data.senderName,
@@ -324,7 +325,7 @@ console.log("found same user, which id",sameUserIds);
               createAt:data.createAt
             });
           }
-
+}
         if(data.selfsockets!=''){
           for(let i=0; i<data.selfsockets.length;i++){
             socket.broadcast.to(data.selfsockets[i]).emit('sendFile',{
@@ -334,13 +335,13 @@ console.log("found same user, which id",sameUserIds);
               filename:data.filename,
               receiverName: data.receiverName,
               fromid:data.fromid,
-              toid:data.toid,
+              //toid:data.toid,
               createAt:data.createAt
             });
           }
         }
 
-}
+
 
           socket.emit('sendFile',{
             //msg:data.msg,
@@ -351,6 +352,62 @@ console.log("found same user, which id",sameUserIds);
             fromid:data.fromid,
             createAt:data.createAt
           });
+        });
+
+        socket.on('getImg', (data:any) => {
+          var newMsg = new chatSchema(data);
+          console.log('get img');
+          console.log(newMsg);
+          //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
+          newMsg.save(function(err){
+          if(err) throw err;
+        })
+
+          //console.log("saved message:",data);
+          if(data.toid){
+          for(let i=0; i<data.toid.length;i++){
+            socket.broadcast.to(data.toid[i]).emit('sendImg',{
+              //msg:data.msg,
+
+              senderName:data.senderName,
+              img:data.img,
+              imgname:data.imgname,
+              receiverName: data.receiverName,
+              fromid:data.fromid,
+              toid:data.toid,
+              createAt:data.createAt
+            });
+          }
+        }
+
+        if(data.selfsockets!=''){
+          for(let i=0; i<data.selfsockets.length;i++){
+            socket.broadcast.to(data.selfsockets[i]).emit('sendImg',{
+              //msg:data.msg,
+              senderName:data.senderName,
+              img:data.img,
+              imgname:data.imgname,
+              receiverName: data.receiverName,
+              fromid:data.fromid,
+              //toid:data.toid,
+              createAt:data.createAt
+            });
+          }
+        }
+console.log("emit msgData",data);
+
+
+          socket.emit('sendImg',{
+            //msg:data.msg,
+            senderName:data.senderName,
+            img:data.img,
+            imgname:data.imgname,
+            receiverName: data.receiverName,
+            fromid:data.fromid,
+            createAt:data.createAt
+          });
+          console.log("emit self",data);
+
 
 
         });

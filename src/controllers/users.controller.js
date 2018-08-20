@@ -8,8 +8,8 @@ router.post('/authenticate', authenticate);
 router.post('/register', register);
 router.get('/', getAll);
 router.get('/current', getCurrent);
-router.put('/:_id', update);
-router.delete('/:_id', _delete);
+router.put('/:id', update);
+router.delete('/:id', _delete);
 
 module.exports = router;
 
@@ -25,6 +25,7 @@ function authenticate(req, res) {
             }
         })
         .catch(function (err) {
+          console.log(err);
             res.status(400).send(err);
         });
 }
@@ -74,6 +75,8 @@ function update(req, res) {
 }
 
 function _delete(req, res) {
+  console.log("deleting");
+  console.log(req.params.id);
     userService.delete(req.params.id)
         .then(function () {
             res.json('success');

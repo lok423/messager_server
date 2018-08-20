@@ -165,17 +165,17 @@ var ChatServer = /** @class */ (function () {
                             createAt: data.createAt
                         });
                     }
-                    if (data.selfsockets != '') {
-                        for (var i = 0; i < data.selfsockets.length; i++) {
-                            socket.broadcast.to(data.selfsockets[i]).emit('sendMsg', {
-                                msg: data.msg,
-                                senderName: data.senderName,
-                                receiverName: data.receiverName,
-                                fromid: data.fromid,
-                                toid: data.toid,
-                                createAt: data.createAt
-                            });
-                        }
+                }
+                if (data.selfsockets != '') {
+                    for (var i = 0; i < data.selfsockets.length; i++) {
+                        socket.broadcast.to(data.selfsockets[i]).emit('sendMsg', {
+                            msg: data.msg,
+                            senderName: data.senderName,
+                            receiverName: data.receiverName,
+                            fromid: data.fromid,
+                            //toid:data.toid,
+                            createAt: data.createAt
+                        });
                     }
                 }
                 socket.emit('sendMsg', {
@@ -224,18 +224,18 @@ var ChatServer = /** @class */ (function () {
                             createAt: data.createAt
                         });
                     }
-                    if (data.selfsockets) {
-                        for (var i = 0; i < data.selfsockets.length; i++) {
-                            socket.broadcast.to(data.selfsockets[i]).emit('sendDrawImg', {
-                                //msg:data.msg,
-                                senderName: data.senderName,
-                                drawImg: data.drawImg,
-                                receiverName: data.receiverName,
-                                fromid: data.fromid,
-                                toid: data.toid,
-                                createAt: data.createAt
-                            });
-                        }
+                }
+                if (data.selfsockets) {
+                    for (var i = 0; i < data.selfsockets.length; i++) {
+                        socket.broadcast.to(data.selfsockets[i]).emit('sendDrawImg', {
+                            //msg:data.msg,
+                            senderName: data.senderName,
+                            drawImg: data.drawImg,
+                            receiverName: data.receiverName,
+                            fromid: data.fromid,
+                            //toid:data.toid,
+                            createAt: data.createAt
+                        });
                     }
                 }
                 socket.emit('sendDrawImg', {
@@ -269,19 +269,19 @@ var ChatServer = /** @class */ (function () {
                             createAt: data.createAt
                         });
                     }
-                    if (data.selfsockets != '') {
-                        for (var i = 0; i < data.selfsockets.length; i++) {
-                            socket.broadcast.to(data.selfsockets[i]).emit('sendFile', {
-                                //msg:data.msg,
-                                senderName: data.senderName,
-                                file: data.file,
-                                filename: data.filename,
-                                receiverName: data.receiverName,
-                                fromid: data.fromid,
-                                toid: data.toid,
-                                createAt: data.createAt
-                            });
-                        }
+                }
+                if (data.selfsockets != '') {
+                    for (var i = 0; i < data.selfsockets.length; i++) {
+                        socket.broadcast.to(data.selfsockets[i]).emit('sendFile', {
+                            //msg:data.msg,
+                            senderName: data.senderName,
+                            file: data.file,
+                            filename: data.filename,
+                            receiverName: data.receiverName,
+                            fromid: data.fromid,
+                            //toid:data.toid,
+                            createAt: data.createAt
+                        });
                     }
                 }
                 socket.emit('sendFile', {
@@ -293,6 +293,56 @@ var ChatServer = /** @class */ (function () {
                     fromid: data.fromid,
                     createAt: data.createAt
                 });
+            });
+            socket.on('getImg', function (data) {
+                var newMsg = new schema_1.chatSchema(data);
+                console.log('get img');
+                console.log(newMsg);
+                //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
+                newMsg.save(function (err) {
+                    if (err)
+                        throw err;
+                });
+                //console.log("saved message:",data);
+                if (data.toid) {
+                    for (var i = 0; i < data.toid.length; i++) {
+                        socket.broadcast.to(data.toid[i]).emit('sendImg', {
+                            //msg:data.msg,
+                            senderName: data.senderName,
+                            img: data.img,
+                            imgname: data.imgname,
+                            receiverName: data.receiverName,
+                            fromid: data.fromid,
+                            toid: data.toid,
+                            createAt: data.createAt
+                        });
+                    }
+                }
+                if (data.selfsockets != '') {
+                    for (var i = 0; i < data.selfsockets.length; i++) {
+                        socket.broadcast.to(data.selfsockets[i]).emit('sendImg', {
+                            //msg:data.msg,
+                            senderName: data.senderName,
+                            img: data.img,
+                            imgname: data.imgname,
+                            receiverName: data.receiverName,
+                            fromid: data.fromid,
+                            //toid:data.toid,
+                            createAt: data.createAt
+                        });
+                    }
+                }
+                console.log("emit msgData", data);
+                socket.emit('sendImg', {
+                    //msg:data.msg,
+                    senderName: data.senderName,
+                    img: data.img,
+                    imgname: data.imgname,
+                    receiverName: data.receiverName,
+                    fromid: data.fromid,
+                    createAt: data.createAt
+                });
+                console.log("emit self", data);
             });
         });
     };

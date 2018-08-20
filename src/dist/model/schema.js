@@ -27,6 +27,14 @@ var schema = new exports.Schema({
         type: String,
         required: false
     },
+    img: {
+        type: String,
+        required: false
+    },
+    imgname: {
+        type: String,
+        required: false
+    },
     createdAt: {
         type: Date,
         required: false
