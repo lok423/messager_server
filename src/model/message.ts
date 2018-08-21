@@ -1,5 +1,17 @@
 import {User} from './user';
 
-export class Message {
-    constructor(private from: User, private content: string) {}
+export interface Message {
+  toid? : string[],
+  fromid: string,
+    msg? : string,
+    senderName : string,
+    selfsockets: string[],
+    receiverName: string,
+    createdAt: Date,
+    drawImg?:string,
+    file?:string,
+    filename?:string,
+    img?:string,
+    imgname?:string,
+    read?:boolean
 }

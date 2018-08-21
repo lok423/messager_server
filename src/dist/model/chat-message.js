@@ -10,12 +10,11 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var _1 = require("./");
 var ChatMessage = /** @class */ (function (_super) {
     __extends(ChatMessage, _super);
     function ChatMessage(from, content) {
         return _super.call(this, from, content) || this;
     }
     return ChatMessage;
-}(_1.Message));
+}(Message));
 exports.ChatMessage = ChatMessage;

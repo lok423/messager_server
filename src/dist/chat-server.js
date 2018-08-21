@@ -6,6 +6,7 @@ var express = require("express");
 var socketIo = require("socket.io");
 //import {schema} from'./model';
 var schema_1 = require("./model/schema");
+var config = require('config.json');
 var ChatServer = /** @class */ (function () {
     //private api = require('./server/routes/api');
     //private chat =require('./model/schema');
@@ -14,6 +15,7 @@ var ChatServer = /** @class */ (function () {
         this.bodyParser = require('body-parser');
         this.expressJwt = require('express-jwt');
         this.authconfig = require('config.json');
+        this.jwt = require('jsonwebtoken');
         this.createApp();
         this.config();
         this.createServer();
@@ -64,6 +66,23 @@ var ChatServer = /** @class */ (function () {
             res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
             // Request headers you wish to allow
             res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+            /*
+                var token = req.body.token || req.query.token || req.headers['x-access-token']
+              if (token) {
+                jwt.verify(token, app.get('secret'), function (err, decoded) {
+                  if (err) {
+                    return res.json({success: false, message: 'Failed to authenticate token.'})
+                  } else {
+                    req.decoded = decoded
+                    next()
+                  }
+                })
+              } else {
+                return res.status(403).send({
+                  success: false,
+                  message: 'No token provided.'
+                })
+              }*/
             // Set to true if you need the website to include cookies in the requests sent
             // to the API (e.g. in case you use sessions)
             //res.setHeader('Access-Control-Allow-Credentials', 'false');
@@ -100,10 +119,27 @@ var ChatServer = /** @class */ (function () {
     };
     ChatServer.prototype.listen = function () {
         var _this = this;
+        var jwt = require('jsonwebtoken');
         this.server.listen(this.port, function () {
             console.log('Running server on port %s', _this.port);
         });
-        this.io.on('connect', function (socket) {
+        this.io.use(function (socket, next) {
+            console.log(socket.handshake.query);
+            if (socket.handshake.query && socket.handshake.query.token) {
+                console.log("verify");
+                jwt.verify(socket.handshake.query.token, config.secret, function (err, decoded) {
+                    //console.log(err);
+                    if (err)
+                        return next(new Error('Authentication error'));
+                    socket.decoded = decoded;
+                    next();
+                });
+            }
+            else {
+                next(new Error('Authentication error'));
+            }
+        })
+            .on('connect', function (socket) {
             console.log('Connected client on port %s.', _this.port);
             socket.on('user', function (user) {
                 console.log("on user", user);
@@ -112,7 +148,7 @@ var ChatServer = /** @class */ (function () {
                     if (err)
                         throw err;
                     else {
-                        console.log("allMessages", allMessages);
+                        //console.log("allMessages",allMessages);
                         socket.emit('old msgs', allMessages);
                     }
                 });
@@ -147,8 +183,16 @@ var ChatServer = /** @class */ (function () {
                 _this.io.emit('userList', _this.users, socket.id);
             });
             socket.on('getMsg', function (data) {
+                /*
+                if(!data.toid){
+                  data.read=false;
+                }else{
+                  data.read =true;
+                }*/
+                data.read = false;
+                console.log(data);
                 var newMsg = new schema_1.chatSchema(data);
-                //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
+                console.log(newMsg);
                 newMsg.save(function (err) {
                     if (err)
                         throw err;
@@ -162,11 +206,11 @@ var ChatServer = /** @class */ (function () {
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             toid: data.toid,
-                            createAt: data.createAt
+                            createdAt: data.createdAt
                         });
                     }
                 }
-                if (data.selfsockets != '') {
+                if (data.selfsockets) {
                     for (var i = 0; i < data.selfsockets.length; i++) {
                         socket.broadcast.to(data.selfsockets[i]).emit('sendMsg', {
                             msg: data.msg,
@@ -174,7 +218,7 @@ var ChatServer = /** @class */ (function () {
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             //toid:data.toid,
-                            createAt: data.createAt
+                            createdAt: data.createdAt
                         });
                     }
                 }
@@ -183,7 +227,7 @@ var ChatServer = /** @class */ (function () {
                     senderName: data.senderName,
                     receiverName: data.receiverName,
                     fromid: data.fromid,
-                    createAt: data.createAt
+                    createdAt: data.createdAt
                 });
             });
             socket.on('disconnect', function () {
@@ -205,6 +249,13 @@ var ChatServer = /** @class */ (function () {
                 _this.io.emit('exit', _this.users);
             });
             socket.on('getDraw', function (data) {
+                /*
+                if(!data.toid){
+                  data.read=false;
+                }else{
+                  data.read =true;
+                }*/
+                data.read = false;
                 var newMsg = new schema_1.chatSchema(data);
                 //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
                 newMsg.save(function (err) {
@@ -221,7 +272,7 @@ var ChatServer = /** @class */ (function () {
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             toid: data.toid,
-                            createAt: data.createAt
+                            createdAt: data.createdAt
                         });
                     }
                 }
@@ -234,7 +285,7 @@ var ChatServer = /** @class */ (function () {
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             //toid:data.toid,
-                            createAt: data.createAt
+                            createdAt: data.createdAt
                         });
                     }
                 }
@@ -244,10 +295,17 @@ var ChatServer = /** @class */ (function () {
                     drawImg: data.drawImg,
                     receiverName: data.receiverName,
                     fromid: data.fromid,
-                    createAt: data.createAt
+                    createdAt: data.createdAt
                 });
             });
             socket.on('getFile', function (data) {
+                /*
+                if(!data.toid){
+                  data.read=false;
+                }else{
+                  data.read =true;
+                }*/
+                data.read = false;
                 var newMsg = new schema_1.chatSchema(data);
                 console.log(newMsg);
                 //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
@@ -266,11 +324,11 @@ var ChatServer = /** @class */ (function () {
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             toid: data.toid,
-                            createAt: data.createAt
+                            createdAt: data.createdAt
                         });
                     }
                 }
-                if (data.selfsockets != '') {
+                if (data.selfsockets) {
                     for (var i = 0; i < data.selfsockets.length; i++) {
                         socket.broadcast.to(data.selfsockets[i]).emit('sendFile', {
                             //msg:data.msg,
@@ -280,7 +338,7 @@ var ChatServer = /** @class */ (function () {
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             //toid:data.toid,
-                            createAt: data.createAt
+                            createdAt: data.createdAt
                         });
                     }
                 }
@@ -291,10 +349,17 @@ var ChatServer = /** @class */ (function () {
                     filename: data.filename,
                     receiverName: data.receiverName,
                     fromid: data.fromid,
-                    createAt: data.createAt
+                    createdAt: data.createdAt
                 });
             });
             socket.on('getImg', function (data) {
+                /*
+                if(!data.toid){
+                  data.read=false;
+                }else{
+                  data.read =true;
+                }*/
+                data.read = false;
                 var newMsg = new schema_1.chatSchema(data);
                 console.log('get img');
                 console.log(newMsg);
@@ -314,11 +379,11 @@ var ChatServer = /** @class */ (function () {
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             toid: data.toid,
-                            createAt: data.createAt
+                            createdAt: data.createdAt
                         });
                     }
                 }
-                if (data.selfsockets != '') {
+                if (data.selfsockets) {
                     for (var i = 0; i < data.selfsockets.length; i++) {
                         socket.broadcast.to(data.selfsockets[i]).emit('sendImg', {
                             //msg:data.msg,
@@ -328,7 +393,7 @@ var ChatServer = /** @class */ (function () {
                             receiverName: data.receiverName,
                             fromid: data.fromid,
                             //toid:data.toid,
-                            createAt: data.createAt
+                            createdAt: data.createdAt
                         });
                     }
                 }
@@ -340,9 +405,20 @@ var ChatServer = /** @class */ (function () {
                     imgname: data.imgname,
                     receiverName: data.receiverName,
                     fromid: data.fromid,
-                    createAt: data.createAt
+                    createdAt: data.createdAt
                 });
                 console.log("emit self", data);
+            });
+            socket.on('message_Read', function (data) {
+                console.log("update read", data);
+                schema_1.chatSchema.update({ senderName: data.selectedUserName, receiverName: data.currentUserName }, { read: true, modifiedAt: new Date() }, { multi: true }, function (err, res) {
+                    if (err) {
+                        throw err;
+                    }
+                    else {
+                        console.log(null, res);
+                    }
+                });
             });
         });
     };

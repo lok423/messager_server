@@ -19,6 +19,10 @@ var schema = new exports.Schema({
         type: String,
         required: false
     },
+    read: {
+        type: Boolean,
+        required: true
+    },
     file: {
         type: String,
         required: false
