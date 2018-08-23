@@ -72,7 +72,7 @@ router.post('/upload-file', function(req, res){
       if (err) throw err; // Something went wrong!
 
 
-
+/*
     let s3bucket = new AWS.S3({
   accessKeyId: IAM_USER_KEY,
   secretAccessKey: IAM_USER_SECRET,
@@ -92,7 +92,7 @@ s3bucket.createBucket(function () {
       console.log('success');
       console.log(data);
     });
-});
+});*/
   });
   });
 
@@ -130,7 +130,7 @@ router.get('/download-file/:filename', function(req, res, next) {
   //console.log(file);
   //res.download(file);
 
-  let s3bucket = new AWS.S3({
+  /*let s3bucket = new AWS.S3({
 accessKeyId: IAM_USER_KEY,
 secretAccessKey: IAM_USER_SECRET,
 Bucket: BUCKET_NAME
@@ -154,6 +154,7 @@ s3bucket.createBucket(function () {
        res.send(data.Body);
   });
 });
+*/
 });
 
 

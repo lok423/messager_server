@@ -4,11 +4,11 @@ import * as mongoose from 'mongoose';
 export let Schema = mongoose.Schema;
 
 let schema = new Schema({
-  senderName: {
+  sender_id: {
 	   type: String,
 	   required: true
   },
-  receiverName: {
+  receiver_id: {
 	   type: String,
 	   required: true
   },

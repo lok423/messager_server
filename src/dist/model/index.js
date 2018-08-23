@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chat_message_1 = require("./chat-message");
-exports.ChatMessage = chat_message_1.ChatMessage;
+//export { ChatMessage } from './chat-message';
 var user_1 = require("./user");
 exports.User = user_1.User;

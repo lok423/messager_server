@@ -4,8 +4,8 @@ export class User {
 
 export interface UpdateMsg {
 
-    currentUserName : string,
-    selectedUserName: string,
+    currentUser_id : string,
+    selectedUser_id: string,
     createdAt: Date,
 
 }

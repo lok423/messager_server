@@ -60,8 +60,9 @@ var ChatServer = /** @class */ (function () {
         this.app.use(this.cors());
         this.app.use(this.bodyParser.urlencoded({ extended: false }));
         this.app.use(this.bodyParser.json());
+        /*
         this.app.use(this.passport.initialize());
-        this.app.use(this.passport.session());
+    this.app.use(this.passport.session());*/
         this.app.use(function (req, res, next) {
             // Website you wish to allow to connect
             res.setHeader('Access-Control-Allow-Origin', '*');
@@ -105,7 +106,7 @@ var ChatServer = /** @class */ (function () {
                 }
                 return null;
             }
-        }).unless({ path: ['/users/authenticate', '/users/register', '/users/facebook_auth'] }));
+        }).unless({ path: ['/users/authenticate', '/users/register'] }));
         // routes
         this.app.use('/users', require('../controllers/users.controller'));
         // error handler
@@ -148,7 +149,7 @@ var ChatServer = /** @class */ (function () {
             console.log('Connected client on port %s.', _this.port);
             socket.on('user', function (user) {
                 console.log("on user", user);
-                var query = schema_1.chatSchema.find({ $or: [{ senderName: user.username }, { receiverName: user.username }] });
+                var query = schema_1.chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
                 query.sort({ createdAt: 1 }).exec(function (err, allMessages) {
                     if (err)
                         throw err;
@@ -158,11 +159,11 @@ var ChatServer = /** @class */ (function () {
                     }
                 });
                 console.log("socketid: ", socket.id);
-                console.log('User Joined: %s', JSON.stringify(user.username));
+                console.log('User Joined: %s', JSON.stringify(user.user_id));
                 var sameUserIds = [];
                 var found = _this.users.some(function (finduser) {
                     console.log("for each user", user);
-                    if (finduser.username === user.username) {
+                    if (finduser.user_id === user.user_id) {
                         console.log("find same user", finduser.channelid);
                         //user.channelids.push(socket.id);
                         //sameUserIds.push(user.channelid);
@@ -179,7 +180,7 @@ var ChatServer = /** @class */ (function () {
                 else {
                     _this.users.push({
                         channelid: [socket.id],
-                        username: user.username,
+                        user_id: user.user_id,
                     });
                     console.log(_this.users);
                 }
@@ -207,8 +208,8 @@ var ChatServer = /** @class */ (function () {
                     for (var i = 0; i < data.toid.length; i++) {
                         socket.broadcast.to(data.toid[i]).emit('sendMsg', {
                             msg: data.msg,
-                            senderName: data.senderName,
-                            receiverName: data.receiverName,
+                            sender_id: data.sender_id,
+                            receiver_id: data.receiver_id,
                             fromid: data.fromid,
                             toid: data.toid,
                             createdAt: data.createdAt
@@ -219,8 +220,8 @@ var ChatServer = /** @class */ (function () {
                     for (var i = 0; i < data.selfsockets.length; i++) {
                         socket.broadcast.to(data.selfsockets[i]).emit('sendMsg', {
                             msg: data.msg,
-                            senderName: data.senderName,
-                            receiverName: data.receiverName,
+                            sender_id: data.sender_id,
+                            receiver_id: data.receiver_id,
                             fromid: data.fromid,
                             //toid:data.toid,
                             createdAt: data.createdAt
@@ -229,8 +230,8 @@ var ChatServer = /** @class */ (function () {
                 }
                 socket.emit('sendMsg', {
                     msg: data.msg,
-                    senderName: data.senderName,
-                    receiverName: data.receiverName,
+                    sender_id: data.sender_id,
+                    receiver_id: data.receiver_id,
                     fromid: data.fromid,
                     createdAt: data.createdAt
                 });
@@ -272,9 +273,9 @@ var ChatServer = /** @class */ (function () {
                     for (var i = 0; i < data.toid.length; i++) {
                         socket.broadcast.to(data.toid[i]).emit('sendDrawImg', {
                             //msg:data.msg,
-                            senderName: data.senderName,
+                            sender_id: data.sender_id,
                             drawImg: data.drawImg,
-                            receiverName: data.receiverName,
+                            receiver_id: data.receiver_id,
                             fromid: data.fromid,
                             toid: data.toid,
                             createdAt: data.createdAt
@@ -285,9 +286,9 @@ var ChatServer = /** @class */ (function () {
                     for (var i = 0; i < data.selfsockets.length; i++) {
                         socket.broadcast.to(data.selfsockets[i]).emit('sendDrawImg', {
                             //msg:data.msg,
-                            senderName: data.senderName,
+                            sender_id: data.sender_id,
                             drawImg: data.drawImg,
-                            receiverName: data.receiverName,
+                            receiver_id: data.receiver_id,
                             fromid: data.fromid,
                             //toid:data.toid,
                             createdAt: data.createdAt
@@ -296,9 +297,9 @@ var ChatServer = /** @class */ (function () {
                 }
                 socket.emit('sendDrawImg', {
                     //msg:data.msg,
-                    senderName: data.senderName,
+                    sender_id: data.sender_id,
                     drawImg: data.drawImg,
-                    receiverName: data.receiverName,
+                    receiver_id: data.receiver_id,
                     fromid: data.fromid,
                     createdAt: data.createdAt
                 });
@@ -323,10 +324,10 @@ var ChatServer = /** @class */ (function () {
                     for (var i = 0; i < data.toid.length; i++) {
                         socket.broadcast.to(data.toid[i]).emit('sendFile', {
                             //msg:data.msg,
-                            senderName: data.senderName,
+                            sender_id: data.sender_id,
                             file: data.file,
                             filename: data.filename,
-                            receiverName: data.receiverName,
+                            receiver_id: data.receiver_id,
                             fromid: data.fromid,
                             toid: data.toid,
                             createdAt: data.createdAt
@@ -337,10 +338,10 @@ var ChatServer = /** @class */ (function () {
                     for (var i = 0; i < data.selfsockets.length; i++) {
                         socket.broadcast.to(data.selfsockets[i]).emit('sendFile', {
                             //msg:data.msg,
-                            senderName: data.senderName,
+                            sender_id: data.sender_id,
                             file: data.file,
                             filename: data.filename,
-                            receiverName: data.receiverName,
+                            receiver_id: data.receiver_id,
                             fromid: data.fromid,
                             //toid:data.toid,
                             createdAt: data.createdAt
@@ -349,10 +350,10 @@ var ChatServer = /** @class */ (function () {
                 }
                 socket.emit('sendFile', {
                     //msg:data.msg,
-                    senderName: data.senderName,
+                    sender_id: data.sender_id,
                     file: data.file,
                     filename: data.filename,
-                    receiverName: data.receiverName,
+                    receiver_id: data.receiver_id,
                     fromid: data.fromid,
                     createdAt: data.createdAt
                 });
@@ -378,10 +379,10 @@ var ChatServer = /** @class */ (function () {
                     for (var i = 0; i < data.toid.length; i++) {
                         socket.broadcast.to(data.toid[i]).emit('sendImg', {
                             //msg:data.msg,
-                            senderName: data.senderName,
+                            sender_id: data.sender_id,
                             img: data.img,
                             imgname: data.imgname,
-                            receiverName: data.receiverName,
+                            receiver_id: data.receiver_id,
                             fromid: data.fromid,
                             toid: data.toid,
                             createdAt: data.createdAt
@@ -392,10 +393,10 @@ var ChatServer = /** @class */ (function () {
                     for (var i = 0; i < data.selfsockets.length; i++) {
                         socket.broadcast.to(data.selfsockets[i]).emit('sendImg', {
                             //msg:data.msg,
-                            senderName: data.senderName,
+                            sender_id: data.sender_id,
                             img: data.img,
                             imgname: data.imgname,
-                            receiverName: data.receiverName,
+                            receiver_id: data.receiver_id,
                             fromid: data.fromid,
                             //toid:data.toid,
                             createdAt: data.createdAt
@@ -405,10 +406,10 @@ var ChatServer = /** @class */ (function () {
                 console.log("emit msgData", data);
                 socket.emit('sendImg', {
                     //msg:data.msg,
-                    senderName: data.senderName,
+                    sender_id: data.sender_id,
                     img: data.img,
                     imgname: data.imgname,
-                    receiverName: data.receiverName,
+                    receiver_id: data.receiver_id,
                     fromid: data.fromid,
                     createdAt: data.createdAt
                 });
@@ -416,7 +417,7 @@ var ChatServer = /** @class */ (function () {
             });
             socket.on('message_Read', function (data) {
                 console.log("update read", data);
-                schema_1.chatSchema.update({ senderName: data.selectedUserName, receiverName: data.currentUserName }, { read: true, modifiedAt: new Date() }, { multi: true }, function (err, res) {
+                schema_1.chatSchema.update({ sender_id: data.selectedUser_id, receiver_id: data.currentUser_id }, { read: true, modifiedAt: new Date() }, { multi: true }, function (err, res) {
                     if (err) {
                         throw err;
                     }

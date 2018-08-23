@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose = require("mongoose");
 exports.Schema = mongoose.Schema;
 var schema = new exports.Schema({
-    senderName: {
+    sender_id: {
         type: String,
         required: true
     },
-    receiverName: {
+    receiver_id: {
         type: String,
         required: true
     },
