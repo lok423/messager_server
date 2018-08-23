@@ -30,6 +30,7 @@ export class ChatServer {
   private expressJwt = require('express-jwt');
   private authconfig = require('config.json');
   private jwt = require('jsonwebtoken');
+  private passport = require('passport');
 
   //private api = require('./server/routes/api');
 
@@ -84,7 +85,9 @@ export class ChatServer {
     this.app.use(this.cors());
     this.app.use(this.bodyParser.urlencoded({ extended: false }));
     this.app.use(this.bodyParser.json());
-
+    /*
+    this.app.use(this.passport.initialize());
+this.app.use(this.passport.session());*/
     this.app.use(function(req, res, next) {
 
       // Website you wish to allow to connect
@@ -125,6 +128,7 @@ export class ChatServer {
     this.app.use(this.expressJwt({
       secret: this.authconfig.secret,
       getToken: function(req) {
+        //console.log(req);
         if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
           return req.headers.authorization.split(' ')[1];
         } else if (req.query && req.query.token) {
@@ -132,13 +136,14 @@ export class ChatServer {
         }
         return null;
       }
-    }).unless({ path: ['/users/authenticate', '/users/register'] }));
+    }).unless({ path: ['/users/authenticate', '/users/register','/users/facebook_auth'] }));
 
     // routes
     this.app.use('/users', require('../controllers/users.controller'));
 
     // error handler
     this.app.use(function(err, req, res, next) {
+    console.log(err);
       if (err.name === 'UnauthorizedError') {
         res.status(401).send('Invalid Token');
       } else {

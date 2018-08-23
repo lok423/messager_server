@@ -2,7 +2,18 @@
 var express = require('express');
 var router = express.Router();
 var userService = require('../services/user.service');
+var passport = require('passport'), FacebookStrategy = require('passport-facebook').Strategy;
 
+passport.use('facebook-token', new FacebookStrategy({
+clientID: "291488081633021",
+clientSecret: "7ece8f92b4b8b6758b132706c1774b8b",
+callbackURL: "http://www.example.com/auth/facebook/callback"
+},
+function(accessToken, refreshToken, profile, done) {
+console.log("accessToken",accessToken);
+console.log("profile",profile);
+}
+));
 // routes
 router.post('/authenticate', authenticate);
 router.post('/register', register);
@@ -10,10 +21,23 @@ router.get('/', getAll);
 router.get('/current', getCurrent);
 router.put('/:id', update);
 router.delete('/:id', _delete);
+router.post('/facebook_auth', passport.authenticate('facebook-token'),
+  function (req, res) {
+    console.log(req,res);
+    // do something with req.user
+    res.send(req.user? 200 : 401);
+  }
+);
 
 module.exports = router;
 
+function fb_authenticate(req, res) {
+    //console.log(req);
+
+}
+
 function authenticate(req, res) {
+
     userService.authenticate(req.body.username, req.body.password)
         .then(function (user) {
             if (user) {
