@@ -128,7 +128,7 @@ var ChatServer = /** @class */ (function () {
             if (socket.handshake.query && socket.handshake.query.token) {
                 console.log("verify");
                 jwt.verify(socket.handshake.query.token, config.secret, function (err, decoded) {
-                    //console.log(err);
+                    console.log(err);
                     if (err)
                         return next(new Error('Authentication error'));
                     socket.decoded = decoded;
