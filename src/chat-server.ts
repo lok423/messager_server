@@ -227,7 +227,7 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
 
         socket.on('user', (user: any) => {
           console.log("on user", user);
-          /*
+
           var query = chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
           query.sort({ createdAt: 1 }).exec(function(err, allMessages) {
             if (err) throw err;
@@ -235,7 +235,7 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
               //console.log("allMessages",allMessages);
               socket.emit('old msgs', allMessages);
             }
-          });*/
+          });
 
           console.log("socketid: ", socket.id);
           console.log('User Joined: %s', JSON.stringify(user.user_id));
@@ -529,7 +529,7 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
 
           socket.on('message_Read', (data: UpdateMsg) => {
             console.log("update read",data);
-            chatSchema.update({sender_id: data.selectedUser_id, receiver_id:data.currentUser_id},{read: true, modifiedAt: new Date()},{multi: true}, function(err, res) {
+            chatSchema.update({sender_id: data.selectedUserId, receiver_id: data.currentUserId},{read: true, modifiedAt: new Date()},{multi: true}, function(err, res) {
  if (err) { throw err;
  } else { console.log(null, res);
  }});

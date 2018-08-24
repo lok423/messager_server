@@ -120,33 +120,38 @@ var ChatServer = /** @class */ (function () {
                 throw err;
             }
         });
-        http.get('http://proprius.co.nz/api/public/api/adminusers', function (res) {
-            var data = '';
-            res.setEncoding('utf8');
-            //console.log("get http", res);
-            // A chunk of data has been recieved.
-            res.on('data', function (chunk) {
-                data += chunk;
-                //console.log(data);
-            });
-            // The whole response has been received. Print out the result.
-            res.on('end', function () {
-                //console.log(JSON.parse(data));
-                var users = JSON.parse(data);
-                console.log(users.length);
-                for (var i = 0; i < users.length; i++) {
-                    //console.log(users[i]);
-                    var new_user = new schema_1.userSchema(users[i]);
-                    //console.log(new_user);
-                    new_user.save(function (err) {
-                        if (err)
-                            throw err;
-                    });
-                }
-            });
-        }).on("error", function (err) {
-            console.log("Error: " + err.message);
-        });
+        /*
+        http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
+          let data = '';
+          res.setEncoding('utf8');
+          //console.log("get http", res);
+        
+          // A chunk of data has been recieved.
+          res.on('data', (chunk) => {
+            data += chunk;
+            //console.log(data);
+        
+          });
+        
+          // The whole response has been received. Print out the result.
+          res.on('end', () => {
+            //console.log(JSON.parse(data));
+            var users = JSON.parse(data);
+            console.log(users.length);
+            for(var i=0;i<users.length;i++){
+              //console.log(users[i]);
+              var new_user = new userSchema(users[i]);
+              //console.log(new_user);
+        
+              new_user.save(function(err) {
+                if (err) throw err;
+              })
+            }
+          });
+        
+        }).on("error", (err) => {
+          console.log("Error: " + err.message);
+        });*/
     };
     ChatServer.prototype.sockets = function () {
         this.io = socketIo(this.server);
@@ -178,15 +183,15 @@ var ChatServer = /** @class */ (function () {
             console.log('Connected client on port %s.', _this.port);
             socket.on('user', function (user) {
                 console.log("on user", user);
-                /*
-                var query = chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
-                query.sort({ createdAt: 1 }).exec(function(err, allMessages) {
-                  if (err) throw err;
-                  else {
-                    //console.log("allMessages",allMessages);
-                    socket.emit('old msgs', allMessages);
-                  }
-                });*/
+                var query = schema_1.chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
+                query.sort({ createdAt: 1 }).exec(function (err, allMessages) {
+                    if (err)
+                        throw err;
+                    else {
+                        //console.log("allMessages",allMessages);
+                        socket.emit('old msgs', allMessages);
+                    }
+                });
                 console.log("socketid: ", socket.id);
                 console.log('User Joined: %s', JSON.stringify(user.user_id));
                 var sameUserIds = [];
@@ -446,7 +451,7 @@ var ChatServer = /** @class */ (function () {
             });
             socket.on('message_Read', function (data) {
                 console.log("update read", data);
-                schema_1.chatSchema.update({ sender_id: data.selectedUser_id, receiver_id: data.currentUser_id }, { read: true, modifiedAt: new Date() }, { multi: true }, function (err, res) {
+                schema_1.chatSchema.update({ sender_id: data.selectedUserId, receiver_id: data.currentUserId }, { read: true, modifiedAt: new Date() }, { multi: true }, function (err, res) {
                     if (err) {
                         throw err;
                     }

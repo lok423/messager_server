@@ -4,11 +4,11 @@ var mongoose = require("mongoose");
 exports.Schema = mongoose.Schema;
 var schema = new exports.Schema({
     sender_id: {
-        type: String,
+        type: Number,
         required: true
     },
     receiver_id: {
-        type: String,
+        type: Number,
         required: true
     },
     msg: {

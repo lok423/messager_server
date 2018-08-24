@@ -5,11 +5,11 @@ export let Schema = mongoose.Schema;
 
 let schema = new Schema({
   sender_id: {
-	   type: String,
+	   type: Number,
 	   required: true
   },
   receiver_id: {
-	   type: String,
+	   type: Number,
 	   required: true
   },
   msg: {
