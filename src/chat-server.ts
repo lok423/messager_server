@@ -8,9 +8,10 @@ import * as socketIo from 'socket.io';
 //import * as mongoose from 'mongoose';
 import { Message } from './model';
 //import {schema} from'./model';
-import { chatSchema } from './model/schema';
+import { chatSchema,userSchema } from './model/schema';
 import { UpdateMsg } from './model/user';
 const config = require('config.json');
+const http = require('http');
 
 
 
@@ -152,6 +153,41 @@ this.app.use(this.passport.session());*/
     });
 
 
+
+/*
+http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
+  let data = '';
+  res.setEncoding('utf8');
+  //console.log("get http", res);
+
+  // A chunk of data has been recieved.
+  res.on('data', (chunk) => {
+    data += chunk;
+    //console.log(data);
+
+  });
+
+  // The whole response has been received. Print out the result.
+  res.on('end', () => {
+    //console.log(JSON.parse(data));
+    var users = JSON.parse(data);
+    console.log(users.length);
+    for(var i=0;i<users.length;i++){
+      //console.log(users[i]);
+      var new_user = new userSchema(users[i]);
+      //console.log(new_user);
+
+      new_user.save(function(err) {
+        if (err) throw err;
+      })
+    }
+  });
+
+}).on("error", (err) => {
+  console.log("Error: " + err.message);
+});*/
+
+
   }
 
   private sockets(): void {
@@ -166,6 +202,7 @@ this.app.use(this.passport.session());*/
 
 
     this.io.use(function(socket, next) {
+      /*
       console.log(socket.handshake.query);
       if (socket.handshake.query && socket.handshake.query.token) {
         console.log("verify");
@@ -178,7 +215,8 @@ this.app.use(this.passport.session());*/
         });
       } else {
         next(new Error('Authentication error'));
-      }
+      }*/
+      next();
     })
 
 
@@ -189,6 +227,7 @@ this.app.use(this.passport.session());*/
 
         socket.on('user', (user: any) => {
           console.log("on user", user);
+          /*
           var query = chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
           query.sort({ createdAt: 1 }).exec(function(err, allMessages) {
             if (err) throw err;
@@ -196,7 +235,7 @@ this.app.use(this.passport.session());*/
               //console.log("allMessages",allMessages);
               socket.emit('old msgs', allMessages);
             }
-          });
+          });*/
 
           console.log("socketid: ", socket.id);
           console.log('User Joined: %s', JSON.stringify(user.user_id));

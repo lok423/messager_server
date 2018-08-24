@@ -7,6 +7,7 @@ var socketIo = require("socket.io");
 //import {schema} from'./model';
 var schema_1 = require("./model/schema");
 var config = require('config.json');
+var http = require('http');
 var ChatServer = /** @class */ (function () {
     //private api = require('./server/routes/api');
     //private chat =require('./model/schema');
@@ -119,6 +120,33 @@ var ChatServer = /** @class */ (function () {
                 throw err;
             }
         });
+        http.get('http://proprius.co.nz/api/public/api/adminusers', function (res) {
+            var data = '';
+            res.setEncoding('utf8');
+            //console.log("get http", res);
+            // A chunk of data has been recieved.
+            res.on('data', function (chunk) {
+                data += chunk;
+                //console.log(data);
+            });
+            // The whole response has been received. Print out the result.
+            res.on('end', function () {
+                //console.log(JSON.parse(data));
+                var users = JSON.parse(data);
+                console.log(users.length);
+                for (var i = 0; i < users.length; i++) {
+                    //console.log(users[i]);
+                    var new_user = new schema_1.userSchema(users[i]);
+                    //console.log(new_user);
+                    new_user.save(function (err) {
+                        if (err)
+                            throw err;
+                    });
+                }
+            });
+        }).on("error", function (err) {
+            console.log("Error: " + err.message);
+        });
     };
     ChatServer.prototype.sockets = function () {
         this.io = socketIo(this.server);
@@ -130,34 +158,35 @@ var ChatServer = /** @class */ (function () {
             console.log('Running server on port %s', _this.port);
         });
         this.io.use(function (socket, next) {
+            /*
             console.log(socket.handshake.query);
             if (socket.handshake.query && socket.handshake.query.token) {
-                console.log("verify");
-                jwt.verify(socket.handshake.query.token, config.secret, function (err, decoded) {
-                    console.log(err);
-                    if (err)
-                        return next(new Error('Authentication error'));
-                    socket.decoded = decoded;
-                    next();
-                });
-            }
-            else {
-                next(new Error('Authentication error'));
-            }
+              console.log("verify");
+              jwt.verify(socket.handshake.query.token, config.secret, function(err, decoded) {
+                console.log(err);
+                if (err) return next(new Error('Authentication error'));
+                socket.decoded = decoded;
+      
+                next();
+              });
+            } else {
+              next(new Error('Authentication error'));
+            }*/
+            next();
         })
             .on('connect', function (socket) {
             console.log('Connected client on port %s.', _this.port);
             socket.on('user', function (user) {
                 console.log("on user", user);
-                var query = schema_1.chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
-                query.sort({ createdAt: 1 }).exec(function (err, allMessages) {
-                    if (err)
-                        throw err;
-                    else {
-                        //console.log("allMessages",allMessages);
-                        socket.emit('old msgs', allMessages);
-                    }
-                });
+                /*
+                var query = chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
+                query.sort({ createdAt: 1 }).exec(function(err, allMessages) {
+                  if (err) throw err;
+                  else {
+                    //console.log("allMessages",allMessages);
+                    socket.emit('old msgs', allMessages);
+                  }
+                });*/
                 console.log("socketid: ", socket.id);
                 console.log('User Joined: %s', JSON.stringify(user.user_id));
                 var sameUserIds = [];

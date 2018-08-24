@@ -59,4 +59,17 @@ var schema = new exports.Schema({
     next();
     return this;
 });
+var userschema = new exports.Schema({
+    user_id: { type: Number },
+    first_name: { type: String },
+    last_name: { type: String },
+    email: { type: String },
+    verified: { type: String },
+    tutor_id: { type: String },
+    user_role: { type: Number },
+    created_at: { type: Date },
+    updated_at: { type: Date },
+    deleted_at: { type: Date }
+});
 exports.chatSchema = mongoose.model('Message', schema);
+exports.userSchema = mongoose.model('users', userschema);
