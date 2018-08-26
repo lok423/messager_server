@@ -60,8 +60,9 @@ var ChatServer = /** @class */ (function () {
         this.app.use(this.cors());
         this.app.use(this.bodyParser.urlencoded({ extended: false }));
         this.app.use(this.bodyParser.json());
+        /*
         this.app.use(this.passport.initialize());
-        this.app.use(this.passport.session());
+    this.app.use(this.passport.session());*/
         this.app.use(function (req, res, next) {
             // Website you wish to allow to connect
             res.setHeader('Access-Control-Allow-Origin', '*');
