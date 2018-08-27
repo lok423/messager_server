@@ -93,7 +93,6 @@ var ChatServer = /** @class */ (function () {
             // Pass to next layer of middleware
             next();
         });
-        this.app.use('/api', this.api);
         this.app.use(this.expressJwt({
             secret: this.authconfig.secret,
             getToken: function (req) {
@@ -109,6 +108,7 @@ var ChatServer = /** @class */ (function () {
         }).unless({ path: ['/users/authenticate', '/users/register', '/users/facebook_auth'] }));
         // routes
         this.app.use('/users', require('../controllers/users.controller'));
+        this.app.use('/api', this.api);
         // error handler
         this.app.use(function (err, req, res, next) {
             console.log(err);

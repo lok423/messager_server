@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 
 export let Schema = mongoose.Schema;
 
-let schema = new Schema({
+let chat_schema = new Schema({
   senderName: {
 	   type: String,
 	   required: true
@@ -55,7 +55,7 @@ let schema = new Schema({
 	   required: false
   }
 }).pre('save', function(next) {
-  if (this._doc) {
+  if (this) {
     let doc = this._doc;
     let now = new Date();
     if (!doc.createdAt) {
@@ -67,4 +67,4 @@ let schema = new Schema({
   return this;
 });
 
-export let chatSchema = mongoose.model('Message', schema);
+export let chatSchema = mongoose.model('Message', chat_schema);

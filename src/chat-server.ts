@@ -10,6 +10,7 @@ import { Message } from './model';
 //import {schema} from'./model';
 import { chatSchema } from './model/schema';
 import { UpdateMsg } from './model/user';
+import{SocketService} from './services/socket.service'
 const config = require('config.json');
 
 
@@ -124,7 +125,7 @@ this.app.use(this.passport.session());*/
       next();
 
     });
-    this.app.use('/api', this.api);
+
     this.app.use(this.expressJwt({
       secret: this.authconfig.secret,
       getToken: function(req) {
@@ -140,7 +141,7 @@ this.app.use(this.passport.session());*/
 
     // routes
     this.app.use('/users', require('../controllers/users.controller'));
-
+    this.app.use('/api', this.api);
     // error handler
     this.app.use(function(err, req, res, next) {
     console.log(err);
