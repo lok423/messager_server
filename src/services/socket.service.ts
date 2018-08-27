@@ -1,7 +1,7 @@
 import * as socketIo from 'socket.io';
 import { chatSchema } from '../model/schema';
 import { Message } from '../model/message';
-import { UpdateMsg } from '../model/user';
+import { UpdateMsg } from '../model/message';
 import { createServer, Server } from 'http';
 import * as express from 'express';
 const config = require('config.json');
@@ -12,9 +12,11 @@ export class SocketService {
   private port: string | number;
   private server: Server;
   private users: any[];
+  private service ={};
+
+
 
     constructor() {
-
     }
 
     public sockets(): void {

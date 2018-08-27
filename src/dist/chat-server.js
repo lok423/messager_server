@@ -105,7 +105,7 @@ var ChatServer = /** @class */ (function () {
                 }
                 return null;
             }
-        }).unless({ path: ['/users/authenticate', '/users/register', '/users/facebook_auth'] }));
+        }).unless({ path: ['/users/authenticate', '/users/register', '/users/oauth/facebook'] }));
         // routes
         this.app.use('/users', require('../controllers/users.controller'));
         this.app.use('/api', this.api);

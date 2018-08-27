@@ -9,7 +9,7 @@ import * as socketIo from 'socket.io';
 import { Message } from './model';
 //import {schema} from'./model';
 import { chatSchema } from './model/schema';
-import { UpdateMsg } from './model/user';
+import { UpdateMsg } from './model/message';
 import{SocketService} from './services/socket.service'
 const config = require('config.json');
 
@@ -137,7 +137,7 @@ this.app.use(this.passport.session());*/
         }
         return null;
       }
-    }).unless({ path: ['/users/authenticate', '/users/register','/users/facebook_auth'] }));
+    }).unless({ path: ['/users/authenticate', '/users/register','/users/oauth/facebook'] }));
 
     // routes
     this.app.use('/users', require('../controllers/users.controller'));

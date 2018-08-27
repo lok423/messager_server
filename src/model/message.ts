@@ -15,3 +15,12 @@ export interface Message {
     imgname?:string,
     read?:boolean
 }
+
+
+export interface UpdateMsg {
+
+    currentUserName : string,
+    selectedUserName: string,
+    createdAt: Date,
+
+}

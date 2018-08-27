@@ -2,18 +2,25 @@
 var express = require('express');
 var router = express.Router();
 var userService = require('../services/user.service');
-var passport = require('passport'), FacebookStrategy = require('passport-facebook').Strategy;
+var passport = require('passport'), FacebookTokenStrategy = require('passport-facebook-token');
 
-passport.use('facebook-token', new FacebookStrategy({
+passport.use('facebookToken', new FacebookTokenStrategy({
 clientID: "291488081633021",
 clientSecret: "7ece8f92b4b8b6758b132706c1774b8b",
-callbackURL: "http://www.example.com/auth/facebook/callback"
-},
-function(accessToken, refreshToken, profile, done) {
-console.log("accessToken",accessToken);
-console.log("profile",profile);
-}
-));
+provider: "facebookToken",
+module: "passport-facebook-token",
+    strategy: "FacebookTokenStrategy",
+    callbackURL: " /auth/facebook-token/callback",
+
+//callbackURL: "http://www.example.com/auth/facebook/callback"
+fbGraphVersion: 'v3.1'
+ }, function(accessToken, refreshToken, profile, done) {
+   //User.findOrCreate({facebookId: profile.id}, function (error, user) {
+     //return done(error, user);
+     console.log(accessToken);
+   }));
+
+
 // routes
 router.post('/authenticate', authenticate);
 router.post('/register', register);
@@ -21,12 +28,23 @@ router.get('/', getAll);
 router.get('/current', getCurrent);
 router.put('/:id', update);
 router.delete('/:id', _delete);
-router.post('/facebook_auth', passport.authenticate('facebook-token'),
-  function (req, res) {
-    console.log(req,res);
-    // do something with req.user
-    res.send(req.user? 200 : 401);
-  }
+router.post('/oauth/facebook',
+
+(req, res) => {
+        passport.authenticate('facebookToken', function (err, user, info) {
+              if(err){
+                  if(err.oauthError){
+                      var oauthError = JSON.parse(err.oauthError.data);
+                      res.send(oauthError.error.message);
+                  } else {
+                      res.send(err);
+                  }
+              } else {
+                  res.send(user);
+              }
+        })(req, res);
+      }
+
 );
 
 module.exports = router;

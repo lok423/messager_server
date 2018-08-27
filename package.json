@@ -27,6 +27,7 @@
     "mongoskin": "^2.1.0",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
+    "passport-facebook-token": "^3.3.0",
     "q": "^1.4.1",
     "request": "^2.87.0",
     "rootpath": "^0.1.2",

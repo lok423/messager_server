@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose = require("mongoose");
 exports.Schema = mongoose.Schema;
-var schema = new exports.Schema({
+var chat_schema = new exports.Schema({
     senderName: {
         type: String,
         required: true
@@ -48,7 +48,7 @@ var schema = new exports.Schema({
         required: false
     }
 }).pre('save', function (next) {
-    if (this._doc) {
+    if (this) {
         var doc = this._doc;
         var now = new Date();
         if (!doc.createdAt) {
@@ -59,4 +59,4 @@ var schema = new exports.Schema({
     next();
     return this;
 });
-exports.chatSchema = mongoose.model('Message', schema);
+exports.chatSchema = mongoose.model('Message', chat_schema);
