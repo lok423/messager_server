@@ -5,11 +5,17 @@ var fs        = require('fs');
 var _filename='';
 var formidable = require('formidable');
 var path = require('path');
-const AWS = require('aws-sdk');
 
+/*
+const AWS = require('aws-sdk');
 const BUCKET_NAME = 'messager-file-storage';
 const IAM_USER_KEY = 'AKIAJ7XAHZ2UV7PMGGGA';
 const IAM_USER_SECRET = '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';
+*/
+
+const GCP = require('@google-cloud/storage');
+const storage = new GCP();
+const bucketName = 'learnspacemessenger';
 
 /*
 router.post('/upload-file', function(req, res, next) {
@@ -64,12 +70,24 @@ router.post('/upload-file', function(req, res){
   // rename it to it's orignal name
   form.on('file', function(field, file) {
     _filename = file.name;
+    var strCopy = file.path.split('/');
+console.log(strCopy[strCopy.length-1]);
+    _filepath = strCopy[strCopy.length-1];
 
     //console.log("file_path", file.path);
-    //console.log(file);
+    console.log(file);
     //fs.rename(file.path, path.join(form.uploadDir, file.name));
     fs.readFile(file.path, function (err, data) {
       if (err) throw err; // Something went wrong!
+
+      let googlebucket = storage.bucket(bucketName).upload(file.path, (err, data) => {
+
+        if(!err)
+        console.log("upload Completed");
+        else
+        console.log("Some ERR");
+        console.log(err);
+});
 
 
 /*
@@ -106,12 +124,9 @@ s3bucket.createBucket(function () {
     //console.log(file);
 
     //res.end({ success : true, file_path:  __dirname + '/../public/my-files/' + _filename, file_name: _filename});
-    res.json({ success : true, file_path:  __dirname + '/../public/my-files/' + _filename, file_name: _filename});
+    //res.json({ success : true, file_path:  __dirname + '/../public/my-files/' + _filename, file_name: _filename});
 
-
-
-
-
+res.json({ success : true, file_path: _filepath, file_name: _filename});
   });
 
   // parse the incoming request containing the form data
@@ -129,6 +144,13 @@ router.get('/download-file/:filename', function(req, res, next) {
   //var file = __dirname + '/../public/my-files/' + req.params.filename;
   //console.log(file);
   //res.download(file);
+
+  let googlebucket = storage.bucket(bucketName).file(filename).download({
+  destination: filename
+}, function(err) {});
+
+
+
 
   /*let s3bucket = new AWS.S3({
 accessKeyId: IAM_USER_KEY,
