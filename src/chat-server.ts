@@ -60,9 +60,9 @@ export class ChatServer {
     this.mongoose = require('mongoose');
     this.mongoose.connect('mongodb://heroku_m353r10c:l59avnkgmk6ugd64k5i1roe7sr@ds121262.mlab.com:21262/heroku_m353r10c', function(err) {
       if (err) {
-        console.log(err);
+        //console.log(err);
       } else {
-        console.log('connected to the mongodb!');
+        //console.log('connected to the mongodb!');
       }
     })
   }
@@ -144,7 +144,7 @@ this.app.use(this.passport.session());*/
 
     // error handler
     this.app.use(function(err, req, res, next) {
-    console.log(err);
+    //console.log(err);
       if (err.name === 'UnauthorizedError') {
         res.status(401).send('Invalid Token');
       } else {
@@ -197,7 +197,7 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
   private listen(): void {
     var jwt = require('jsonwebtoken');
     this.server.listen(this.port, () => {
-      console.log('Running server on port %s', this.port);
+      //console.log('Running server on port %s', this.port);
     });
 
 
@@ -222,11 +222,11 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
 
 
       .on('connect', (socket: any) => {
-        console.log('Connected client on port %s.', this.port);
+        //console.log('Connected client on port %s.', this.port);
 
 
         socket.on('user', (user: any) => {
-          console.log("on user", user);
+          //console.log("on user", user);
 
           var query = chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
           query.sort({ createdAt: 1 }).exec(function(err, allMessages) {
@@ -237,32 +237,32 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
             }
           });
 
-          console.log("socketid: ", socket.id);
-          console.log('User Joined: %s', JSON.stringify(user.user_id));
+          //console.log("socketid: ", socket.id);
+          //console.log('User Joined: %s', JSON.stringify(user.user_id));
           var sameUserIds: string[] = [];
           var found = this.users.some(function(finduser) {
-            console.log("for each user", user);
+            //console.log("for each user", user);
 
             if (finduser.user_id === user.user_id) {
-              console.log("find same user", finduser.channelid);
+              //console.log("find same user", finduser.channelid);
               //user.channelids.push(socket.id);
               //sameUserIds.push(user.channelid);
               finduser.channelid.push(socket.id);
               return finduser.channelid;
             }
           });
-          console.log("found same user, which id", sameUserIds);
+          //console.log("found same user, which id", sameUserIds);
           if (found) {
             //sameUserIds.push(socket.id);
 
-            console.log(this.users);
-            console.log("same user join");
+            //console.log(this.users);
+            //console.log("same user join");
           } else {
             this.users.push({
               channelid: [socket.id],
               user_id: user.user_id,
             });
-            console.log(this.users);
+            //console.log(this.users);
           }
           let len = this.users.length;
           len--;
@@ -280,15 +280,15 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
           }*/
           data.read = false;
 
-          console.log(data);
+          //console.log(data);
           var newMsg = new chatSchema(data);
-          console.log(newMsg);
+          //console.log(newMsg);
 
           newMsg.save(function(err) {
             if (err) throw err;
           })
 
-          console.log("saved message:", data);
+          //console.log("saved message:", data);
           if (data.toid) {
             for (let i = 0; i < data.toid.length; i++) {
               socket.broadcast.to(data.toid[i]).emit('sendMsg', {
@@ -334,7 +334,7 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
             var foundExitUserId = this.users[i].channelid.findIndex(function(element: string) {
               return element === socket.id;
             });
-            console.log(foundExitUserId);
+            //console.log(foundExitUserId);
             if (foundExitUserId > -1) {
               if (this.users[i].channelid.length > 1) {
                 this.users[i].channelid.splice(foundExitUserId, 1);
@@ -344,7 +344,7 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
 
             }
           }
-          console.log("current users", this.users);
+          //console.log("current users", this.users);
           this.io.emit('exit', this.users);
         });
 
@@ -415,7 +415,7 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
           data.read = false;
 
           var newMsg = new chatSchema(data);
-          console.log(newMsg);
+          //console.log(newMsg);
           //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
           newMsg.save(function(err) {
             if (err) throw err;
@@ -474,8 +474,8 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
           data.read = false;
 
           var newMsg = new chatSchema(data);
-          console.log('get img');
-          console.log(newMsg);
+          //console.log('get img');
+          //console.log(newMsg);
           //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
           newMsg.save(function(err) {
             if (err) throw err;
@@ -512,7 +512,7 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
               });
             }
           }
-          console.log("emit msgData", data);
+          //console.log("emit msgData", data);
 
 
           socket.emit('sendImg', {
@@ -524,14 +524,14 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
             fromid: data.fromid,
             createdAt: data.createdAt
           });
-          console.log("emit self", data);
+          //console.log("emit self", data);
         });
 
           socket.on('message_Read', (data: UpdateMsg) => {
-            console.log("update read",data);
+            //console.log("update read",data);
             chatSchema.update({sender_id: data.selectedUserId, receiver_id: data.currentUserId},{read: true, modifiedAt: new Date()},{multi: true}, function(err, res) {
  if (err) { throw err;
- } else { console.log(null, res);
+ } else { //console.log(null, res);
  }});
 
           });

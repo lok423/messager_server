@@ -29,7 +29,7 @@ function authenticate(req, res) {
             }
         })
         .catch(function (err) {
-          console.log(err);
+          //console.log(err);
             res.status(400).send(err);
         });
 }
@@ -79,8 +79,8 @@ function update(req, res) {
 }
 
 function _delete(req, res) {
-  console.log("deleting");
-  console.log(req.params.id);
+  //console.log("deleting");
+  //console.log(req.params.id);
     userService.delete(req.params.id)
         .then(function () {
             res.json('success');
