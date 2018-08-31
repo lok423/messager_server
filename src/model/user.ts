@@ -7,5 +7,6 @@ export interface UpdateMsg {
     currentUserId : string,
     selectedUserId: string,
     createdAt: Date,
+    role: string
 
 }

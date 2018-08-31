@@ -15,23 +15,29 @@ const http = require('http');
 
 
 
+
+
 export class ChatServer {
   public static readonly PORT: number = 8080;
+  private ip : string = '192.168.1.83' ;
+
   private app: express.Application;
   private server: Server;
-  private io: SocketIO.Server;
+  public  io: SocketIO.Server;
   private port: string | number;
-  private users: any[];
+  public users: any[];
   private mongoose;
-  private api;
+  private api = require('../routes/api');
   //private busboy;
   private formidable;
   private cors = require('cors');
   private bodyParser = require('body-parser');
   private expressJwt = require('express-jwt');
   private authconfig = require('config.json');
-  private jwt = require('jsonwebtoken');
-  private passport = require('passport');
+
+  //private jwt = require('jsonwebtoken');
+  //private passport = require('passport');
+
 
   //private api = require('./server/routes/api');
 
@@ -69,9 +75,9 @@ export class ChatServer {
 
   private createApp(): void {
     this.app = express();
-    this.api = require('../routes/api');
     //this.busboy = require('connect-busboy');
     this.formidable = require('formidable');
+
   }
 
   private createServer(): void {
@@ -81,16 +87,19 @@ export class ChatServer {
   private config(): void {
     this.port = process.env.PORT || ChatServer.PORT;
     this.app.set('port', this.port);
+
+    //this.app.set('socketIo',this.io);
     //this.app.use(this.busboy({ immediate: true }));
     //this.app.use(this.formidable);
     this.app.use(this.cors());
-    this.app.use(this.bodyParser.urlencoded({ extended: false }));
+    this.app.use(this.bodyParser.urlencoded({ extended: true }));
     this.app.use(this.bodyParser.json());
+
     /*
     this.app.use(this.passport.initialize());
 this.app.use(this.passport.session());*/
     this.app.use(function(req, res, next) {
-
+      //console.log(req);
       // Website you wish to allow to connect
       res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -125,7 +134,6 @@ this.app.use(this.passport.session());*/
       next();
 
     });
-    this.app.use('/api', this.api);
     this.app.use(this.expressJwt({
       secret: this.authconfig.secret,
       getToken: function(req) {
@@ -137,9 +145,10 @@ this.app.use(this.passport.session());*/
         }
         return null;
       }
-    }).unless({ path: ['/users/authenticate', '/users/register'] }));
+    }).unless({ path: ['/users/authenticate', '/users/register','/api/sessions/create'] }));
 
     // routes
+    this.app.use('/api', this.api);
     this.app.use('/users', require('../controllers/users.controller'));
 
     // error handler
@@ -192,15 +201,22 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
 
   private sockets(): void {
     this.io = socketIo(this.server);
+
+    //console.log(this.io);
   }
 
   private listen(): void {
-    var jwt = require('jsonwebtoken');
-    this.server.listen(this.port, () => {
-      //console.log('Running server on port %s', this.port);
+    //var jwt = require('jsonwebtoken');
+    this.server.listen(this.port,Number(this.ip) ,()=>  {
+      console.log('Running server on port %s', this.port);
     });
 
+    this.socketfunction();
 
+}
+
+
+  socketfunction(){
     this.io.use(function(socket, next) {
       /*
       console.log(socket.handshake.query);
@@ -218,17 +234,13 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
       }*/
       next();
     })
-
-
-
-      .on('connect', (socket: any) => {
+      .on('connect', (socket) => {
         //console.log('Connected client on port %s.', this.port);
-
-
-        socket.on('user', (user: any) => {
+        socket.on('user', (user) => {
           //console.log("on user", user);
 
           var query = chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
+          //console.log(query);
           query.sort({ createdAt: 1 }).exec(function(err, allMessages) {
             if (err) throw err;
             else {
@@ -529,15 +541,30 @@ http.get('http://proprius.co.nz/api/public/api/adminusers', (res) => {
 
           socket.on('message_Read', (data: UpdateMsg) => {
             //console.log("update read",data);
+
+            if(data.role=="1"){
             chatSchema.update({sender_id: data.selectedUserId, receiver_id: data.currentUserId},{read: true, modifiedAt: new Date()},{multi: true}, function(err, res) {
  if (err) { throw err;
- } else { //console.log(null, res);
+ } else { console.log("update user");
  }});
+ chatSchema.update({sender_id: data.currentUserId, receiver_id: data.selectedUserId},{modifiedAt: new Date(),learner_read:true},{multi: true}, function(err, res) {
+if (err) { throw err;
+} else { console.log("update learner");
+}});
+          }else if(data.role=="3"){
+            chatSchema.update({sender_id: data.selectedUserId, receiver_id: data.currentUserId},{read: true, modifiedAt: new Date(), tutor_read:true},{multi: true}, function(err, res) {
+ if (err) { throw err;
+ } else { console.log("update tutor");
+ }});
+          }
+
 
           });
 
 
       });
+
+
   }
 
 

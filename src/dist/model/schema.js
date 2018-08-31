@@ -21,7 +21,7 @@ var schema = new exports.Schema({
     },
     read: {
         type: Boolean,
-        required: true
+        required: false
     },
     file: {
         type: String,
@@ -46,7 +46,16 @@ var schema = new exports.Schema({
     modifiedAt: {
         type: Date,
         required: false
-    }
+    },
+    tutor_user_id: { type: Number },
+    learner_user_id: { type: Number },
+    session_subject: { type: String },
+    session_location: { type: String },
+    session_date: { type: Date },
+    learner_name: { type: String },
+    tutor_name: { type: String },
+    tutor_read: { type: Boolean },
+    learner_read: { type: Boolean }
 }).pre('save', function (next) {
     if (this._doc) {
         var doc = this._doc;
@@ -71,5 +80,34 @@ var userschema = new exports.Schema({
     updated_at: { type: Date },
     deleted_at: { type: Date }
 });
+var sessionschema = new exports.Schema({
+    tutor_user_id: { type: Number },
+    learner_user_id: { type: Number },
+    session_subject: { type: String },
+    session_location: { type: String },
+    session_date: { type: Date },
+    learner_name: { type: String },
+    tutor_name: { type: String },
+    createdAt: {
+        type: Date,
+        required: false
+    },
+    modifiedAt: {
+        type: Date,
+        required: false
+    },
+}).pre('save', function (next) {
+    if (this._doc) {
+        var doc = this._doc;
+        var now = new Date();
+        if (!doc.createdAt) {
+            doc.createdAt = now;
+        }
+        doc.modifiedAt = now;
+    }
+    next();
+    return this;
+});
+exports.sessionSchema = mongoose.model('sessions', sessionschema);
 exports.chatSchema = mongoose.model('Message', schema);
 exports.userSchema = mongoose.model('users', userschema);

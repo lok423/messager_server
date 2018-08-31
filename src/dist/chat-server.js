@@ -9,15 +9,17 @@ var schema_1 = require("./model/schema");
 var config = require('config.json');
 var http = require('http');
 var ChatServer = /** @class */ (function () {
+    //private jwt = require('jsonwebtoken');
+    //private passport = require('passport');
     //private api = require('./server/routes/api');
     //private chat =require('./model/schema');
     function ChatServer() {
+        this.ip = '192.168.1.83';
+        this.api = require('../routes/api');
         this.cors = require('cors');
         this.bodyParser = require('body-parser');
         this.expressJwt = require('express-jwt');
         this.authconfig = require('config.json');
-        this.jwt = require('jsonwebtoken');
-        this.passport = require('passport');
         this.createApp();
         this.config();
         this.createServer();
@@ -37,16 +39,15 @@ var ChatServer = /** @class */ (function () {
         this.mongoose = require('mongoose');
         this.mongoose.connect('mongodb://heroku_m353r10c:l59avnkgmk6ugd64k5i1roe7sr@ds121262.mlab.com:21262/heroku_m353r10c', function (err) {
             if (err) {
-                console.log(err);
+                //console.log(err);
             }
             else {
-                console.log('connected to the mongodb!');
+                //console.log('connected to the mongodb!');
             }
         });
     };
     ChatServer.prototype.createApp = function () {
         this.app = express();
-        this.api = require('../routes/api');
         //this.busboy = require('connect-busboy');
         this.formidable = require('formidable');
     };
@@ -56,15 +57,17 @@ var ChatServer = /** @class */ (function () {
     ChatServer.prototype.config = function () {
         this.port = process.env.PORT || ChatServer.PORT;
         this.app.set('port', this.port);
+        //this.app.set('socketIo',this.io);
         //this.app.use(this.busboy({ immediate: true }));
         //this.app.use(this.formidable);
         this.app.use(this.cors());
-        this.app.use(this.bodyParser.urlencoded({ extended: false }));
+        this.app.use(this.bodyParser.urlencoded({ extended: true }));
         this.app.use(this.bodyParser.json());
         /*
         this.app.use(this.passport.initialize());
     this.app.use(this.passport.session());*/
         this.app.use(function (req, res, next) {
+            //console.log(req);
             // Website you wish to allow to connect
             res.setHeader('Access-Control-Allow-Origin', '*');
             // Request methods you wish to allow
@@ -94,7 +97,6 @@ var ChatServer = /** @class */ (function () {
             // Pass to next layer of middleware
             next();
         });
-        this.app.use('/api', this.api);
         this.app.use(this.expressJwt({
             secret: this.authconfig.secret,
             getToken: function (req) {
@@ -107,12 +109,13 @@ var ChatServer = /** @class */ (function () {
                 }
                 return null;
             }
-        }).unless({ path: ['/users/authenticate', '/users/register'] }));
+        }).unless({ path: ['/users/authenticate', '/users/register', '/api/sessions/create'] }));
         // routes
+        this.app.use('/api', this.api);
         this.app.use('/users', require('../controllers/users.controller'));
         // error handler
         this.app.use(function (err, req, res, next) {
-            console.log(err);
+            //console.log(err);
             if (err.name === 'UnauthorizedError') {
                 res.status(401).send('Invalid Token');
             }
@@ -155,13 +158,18 @@ var ChatServer = /** @class */ (function () {
     };
     ChatServer.prototype.sockets = function () {
         this.io = socketIo(this.server);
+        //console.log(this.io);
     };
     ChatServer.prototype.listen = function () {
         var _this = this;
-        var jwt = require('jsonwebtoken');
-        this.server.listen(this.port, function () {
+        //var jwt = require('jsonwebtoken');
+        this.server.listen(this.port, Number(this.ip), function () {
             console.log('Running server on port %s', _this.port);
         });
+        this.socketfunction();
+    };
+    ChatServer.prototype.socketfunction = function () {
+        var _this = this;
         this.io.use(function (socket, next) {
             /*
             console.log(socket.handshake.query);
@@ -180,10 +188,11 @@ var ChatServer = /** @class */ (function () {
             next();
         })
             .on('connect', function (socket) {
-            console.log('Connected client on port %s.', _this.port);
+            //console.log('Connected client on port %s.', this.port);
             socket.on('user', function (user) {
-                console.log("on user", user);
+                //console.log("on user", user);
                 var query = schema_1.chatSchema.find({ $or: [{ sender_id: user.user_id }, { receiver_id: user.user_id }] });
+                //console.log(query);
                 query.sort({ createdAt: 1 }).exec(function (err, allMessages) {
                     if (err)
                         throw err;
@@ -192,31 +201,31 @@ var ChatServer = /** @class */ (function () {
                         socket.emit('old msgs', allMessages);
                     }
                 });
-                console.log("socketid: ", socket.id);
-                console.log('User Joined: %s', JSON.stringify(user.user_id));
+                //console.log("socketid: ", socket.id);
+                //console.log('User Joined: %s', JSON.stringify(user.user_id));
                 var sameUserIds = [];
                 var found = _this.users.some(function (finduser) {
-                    console.log("for each user", user);
+                    //console.log("for each user", user);
                     if (finduser.user_id === user.user_id) {
-                        console.log("find same user", finduser.channelid);
+                        //console.log("find same user", finduser.channelid);
                         //user.channelids.push(socket.id);
                         //sameUserIds.push(user.channelid);
                         finduser.channelid.push(socket.id);
                         return finduser.channelid;
                     }
                 });
-                console.log("found same user, which id", sameUserIds);
+                //console.log("found same user, which id", sameUserIds);
                 if (found) {
                     //sameUserIds.push(socket.id);
-                    console.log(_this.users);
-                    console.log("same user join");
+                    //console.log(this.users);
+                    //console.log("same user join");
                 }
                 else {
                     _this.users.push({
                         channelid: [socket.id],
                         user_id: user.user_id,
                     });
-                    console.log(_this.users);
+                    //console.log(this.users);
                 }
                 var len = _this.users.length;
                 len--;
@@ -230,14 +239,14 @@ var ChatServer = /** @class */ (function () {
                   data.read =true;
                 }*/
                 data.read = false;
-                console.log(data);
+                //console.log(data);
                 var newMsg = new schema_1.chatSchema(data);
-                console.log(newMsg);
+                //console.log(newMsg);
                 newMsg.save(function (err) {
                     if (err)
                         throw err;
                 });
-                console.log("saved message:", data);
+                //console.log("saved message:", data);
                 if (data.toid) {
                     for (var i = 0; i < data.toid.length; i++) {
                         socket.broadcast.to(data.toid[i]).emit('sendMsg', {
@@ -275,7 +284,7 @@ var ChatServer = /** @class */ (function () {
                     var foundExitUserId = _this.users[i].channelid.findIndex(function (element) {
                         return element === socket.id;
                     });
-                    console.log(foundExitUserId);
+                    //console.log(foundExitUserId);
                     if (foundExitUserId > -1) {
                         if (_this.users[i].channelid.length > 1) {
                             _this.users[i].channelid.splice(foundExitUserId, 1);
@@ -285,7 +294,7 @@ var ChatServer = /** @class */ (function () {
                         }
                     }
                 }
-                console.log("current users", _this.users);
+                //console.log("current users", this.users);
                 _this.io.emit('exit', _this.users);
             });
             socket.on('getDraw', function (data) {
@@ -347,7 +356,7 @@ var ChatServer = /** @class */ (function () {
                 }*/
                 data.read = false;
                 var newMsg = new schema_1.chatSchema(data);
-                console.log(newMsg);
+                //console.log(newMsg);
                 //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
                 newMsg.save(function (err) {
                     if (err)
@@ -401,8 +410,8 @@ var ChatServer = /** @class */ (function () {
                 }*/
                 data.read = false;
                 var newMsg = new schema_1.chatSchema(data);
-                console.log('get img');
-                console.log(newMsg);
+                //console.log('get img');
+                //console.log(newMsg);
                 //chatSchema.save({fromname:"aa", toname:"bb", msg:"hi"});
                 newMsg.save(function (err) {
                     if (err)
@@ -437,7 +446,7 @@ var ChatServer = /** @class */ (function () {
                         });
                     }
                 }
-                console.log("emit msgData", data);
+                //console.log("emit msgData", data);
                 socket.emit('sendImg', {
                     //msg:data.msg,
                     sender_id: data.sender_id,
@@ -447,18 +456,38 @@ var ChatServer = /** @class */ (function () {
                     fromid: data.fromid,
                     createdAt: data.createdAt
                 });
-                console.log("emit self", data);
+                //console.log("emit self", data);
             });
             socket.on('message_Read', function (data) {
-                console.log("update read", data);
-                schema_1.chatSchema.update({ sender_id: data.selectedUserId, receiver_id: data.currentUserId }, { read: true, modifiedAt: new Date() }, { multi: true }, function (err, res) {
-                    if (err) {
-                        throw err;
-                    }
-                    else {
-                        console.log(null, res);
-                    }
-                });
+                //console.log("update read",data);
+                if (data.role == "1") {
+                    schema_1.chatSchema.update({ sender_id: data.selectedUserId, receiver_id: data.currentUserId }, { read: true, modifiedAt: new Date() }, { multi: true }, function (err, res) {
+                        if (err) {
+                            throw err;
+                        }
+                        else {
+                            console.log("update user");
+                        }
+                    });
+                    schema_1.chatSchema.update({ sender_id: data.currentUserId, receiver_id: data.selectedUserId }, { modifiedAt: new Date(), learner_read: true }, { multi: true }, function (err, res) {
+                        if (err) {
+                            throw err;
+                        }
+                        else {
+                            console.log("update learner");
+                        }
+                    });
+                }
+                else if (data.role == "3") {
+                    schema_1.chatSchema.update({ sender_id: data.selectedUserId, receiver_id: data.currentUserId }, { read: true, modifiedAt: new Date(), tutor_read: true }, { multi: true }, function (err, res) {
+                        if (err) {
+                            throw err;
+                        }
+                        else {
+                            console.log("update tutor");
+                        }
+                    });
+                }
             });
         });
     };

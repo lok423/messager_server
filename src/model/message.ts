@@ -13,5 +13,35 @@ export interface Message {
     filename?:string,
     img?:string,
     imgname?:string,
-    read?:boolean
+    read?:boolean,
+    tutor_read?:boolean,
+    learner_read?:boolean
+}
+
+
+export interface Session {
+  tutor_user_id : number,
+  learner_user_id: number,
+  session_date: Date,
+  session_subject:string,
+  session_location:string,
+  learner_name:string,
+  tutor_name:string
+}
+
+
+export interface MessageSession {
+  sender_id:string,
+  receiver_id:string,
+  tutor_user_id : number,
+  learner_user_id: number,
+  session_date: Date,
+  session_subject:string,
+  session_location:string,
+  learner_name:string,
+  tutor_name:string,
+  read?:boolean,
+  tutor_read?:boolean,
+  learner_read?:boolean
+
 }

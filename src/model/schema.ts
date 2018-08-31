@@ -4,6 +4,7 @@ import * as mongoose from 'mongoose';
 export let Schema = mongoose.Schema;
 
 let schema = new Schema({
+
   sender_id: {
 	   type: Number,
 	   required: true
@@ -23,7 +24,7 @@ let schema = new Schema({
   },
   read:{
     type: Boolean,
-    required: true
+    required: false
   },
 
   file:{
@@ -53,7 +54,17 @@ let schema = new Schema({
   modifiedAt: {
 	   type: Date,
 	   required: false
-  }
+  },
+  tutor_user_id: { type: Number },
+  learner_user_id: { type: Number },
+  session_subject: { type: String },
+  session_location: { type: String },
+  session_date: { type: Date },
+  learner_name: { type: String },
+  tutor_name: { type: String },
+  tutor_read:{type:Boolean},
+  learner_read:{type:Boolean}
+
 }).pre('save', function(next) {
   if (this._doc) {
     let doc = this._doc;
@@ -83,6 +94,37 @@ let userschema = new Schema({
 
 
 })
+
+let sessionschema = new Schema({
+  tutor_user_id: {type: Number},
+  learner_user_id: {type: Number},
+  session_subject: {type:String},
+  session_location: {type:String},
+  session_date:{type:Date},
+  learner_name: {type:String},
+  tutor_name: {type:String},
+  createdAt: {
+	   type: Date,
+	   required: false
+  },
+  modifiedAt: {
+	   type: Date,
+	   required: false
+  },
+}).pre('save', function(next) {
+  if (this._doc) {
+    let doc = this._doc;
+    let now = new Date();
+    if (!doc.createdAt) {
+      doc.createdAt = now;
+    }
+    doc.modifiedAt = now;
+  }
+  next();
+  return this;
+});
+
+export let sessionSchema = mongoose.model('sessions', sessionschema);
 
 
 export let chatSchema = mongoose.model('Message', schema);
